@@ -4,6 +4,8 @@ export type SortOrder = 'createdAt_desc' | 'createdAt_asc' | 'accessCount_desc' 
 
 export type CardAspect = 'default' | 'highlighted' | 'minimalist';
 
+export type ViewMode = 'grid' | 'list';
+
 export interface BaseContentItem {
   id: string;
   groupId: string;
@@ -45,6 +47,7 @@ export interface Group {
   icon?: string;
   createdAt: string;
   accessCount: number;
+  viewMode: ViewMode;
 }
 
 export interface StatLog {

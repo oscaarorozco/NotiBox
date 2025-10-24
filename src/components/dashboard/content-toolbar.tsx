@@ -2,14 +2,19 @@
 
 import { useContentStore } from "@/hooks/use-content-store";
 import * as LucideIcons from "lucide-react";
-import { Folder } from "lucide-react";
+import { Folder, LayoutGrid, List } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { SortOrder } from "@/lib/types";
+import { SortOrder, ViewMode } from "@/lib/types";
 import { CommandPalette } from "./command-palette";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 const toPascalCase = (str: string) => {
-    return str.replace(/(^\w|-\w)/g, (g) => g.replace(/-/, "").toUpperCase());
+    if (!str) return 'Folder';
+    const camelCase = str.replace(/-(\w)/g, (_, c) => c.toUpperCase());
+    return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
+
 
 export function ContentToolbar() {
     const { 
@@ -17,6 +22,7 @@ export function ContentToolbar() {
         appData,
         sortOrder,
         setSortOrder,
+        updateGroupViewMode,
     } = useContentStore();
 
     const activeGroup = appData.groups.find(g => g.id === activeGroupId);
@@ -24,6 +30,11 @@ export function ContentToolbar() {
     const iconName = activeGroup?.icon ? toPascalCase(activeGroup.icon) : 'Folder';
     const ActiveGroupIcon = LucideIcons[iconName as keyof typeof LucideIcons] || Folder;
 
+    const handleViewModeChange = (viewMode: ViewMode) => {
+        if (activeGroupId) {
+            updateGroupViewMode(activeGroupId, viewMode);
+        }
+    }
 
     const sortOptions: { value: SortOrder, label: string}[] = [
         { value: 'createdAt_desc', label: 'Más recientes' },
@@ -58,9 +69,15 @@ export function ContentToolbar() {
                         </SelectContent>
                     </Select>
                  </div>
+                 <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
+                    <Button variant="ghost" size="icon" className={cn("h-8 w-8", activeGroup?.viewMode === 'grid' && 'bg-background shadow-sm')} onClick={() => handleViewModeChange('grid')} disabled={!activeGroupId}>
+                        <LayoutGrid className="h-4 w-4"/>
+                    </Button>
+                     <Button variant="ghost" size="icon" className={cn("h-8 w-8", activeGroup?.viewMode === 'list' && 'bg-background shadow-sm')} onClick={() => handleViewModeChange('list')} disabled={!activeGroupId}>
+                        <List className="h-4 w-4"/>
+                    </Button>
+                </div>
             </div>
         </div>
     );
 }
-
-    

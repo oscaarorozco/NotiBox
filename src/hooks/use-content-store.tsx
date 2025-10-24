@@ -8,7 +8,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import type { AppData, Group, ContentItem, StatLog, TodoItem, ContentItemType, SortOrder, CardAspect } from "@/lib/types";
+import type { AppData, Group, ContentItem, StatLog, TodoItem, ContentItemType, SortOrder, ViewMode } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -24,7 +24,7 @@ import {
 const LOCAL_STORAGE_KEY = "content-hub-data";
 
 const defaultAppData: AppData = {
-  groups: [{ id: "1", name: "General", icon: "folder", createdAt: new Date().toISOString(), accessCount: 0 }],
+  groups: [{ id: "1", name: "General", icon: "folder", createdAt: new Date().toISOString(), accessCount: 0, viewMode: 'grid' }],
   items: [],
   stats: [],
 };
@@ -41,6 +41,7 @@ interface ContentStore {
   addGroup: (name: string, icon?: string) => void;
   updateGroup: (id:string, name: string, icon?: string) => void;
   deleteGroup: (id: string) => void;
+  updateGroupViewMode: (groupId: string, viewMode: ViewMode) => void;
   // Item actions
   addItem: (item: Omit<ContentItem, "id" | "createdAt" | "accessCount" | "lastAccessed">) => void;
   updateItem: (item: ContentItem) => void;
@@ -108,19 +109,19 @@ export const ContentStoreProvider = ({
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedData) {
         const parsedData = JSON.parse(storedData) as AppData;
-        // Simple migration for accessCount if it's missing
-        if (!parsedData.groups.every(g => 'accessCount' in g)) {
-            parsedData.groups = parsedData.groups.map(g => ({ ...g, accessCount: g.accessCount || 0 }));
-        }
-        if (!parsedData.items.every(i => 'accessCount' in i)) {
-            parsedData.items = parsedData.items.map(i => ({ ...i, accessCount: i.accessCount || 0, lastAccessed: i.lastAccessed || null }));
-        }
-        if (!parsedData.groups.every(g => 'icon' in g)) {
-          parsedData.groups = parsedData.groups.map(g => ({ ...g, icon: g.icon || 'folder' }));
-        }
-        if (!parsedData.items.every(i => 'aspect' in i)) {
-          parsedData.items = parsedData.items.map(i => ({ ...i, aspect: i.aspect || 'default' }));
-        }
+        // Simple migrations for missing fields
+        parsedData.groups = parsedData.groups.map(g => ({ 
+          ...g, 
+          accessCount: g.accessCount || 0,
+          icon: g.icon || 'folder',
+          viewMode: g.viewMode || 'grid'
+        }));
+        parsedData.items = parsedData.items.map(i => ({ 
+            ...i, 
+            accessCount: i.accessCount || 0, 
+            lastAccessed: i.lastAccessed || null,
+            aspect: i.aspect || 'default'
+        }));
 
         setAppData(parsedData);
         if (parsedData.groups.length > 0 && !parsedData.groups.find((g: Group) => g.id === activeGroupId)) {
@@ -194,6 +195,7 @@ export const ContentStoreProvider = ({
       icon,
       createdAt: new Date().toISOString(),
       accessCount: 0,
+      viewMode: 'grid'
     };
     setAppData((prev) => ({ ...prev, groups: [...prev.groups, newGroup] }));
     setActiveGroupId(newGroup.id);
@@ -207,6 +209,13 @@ export const ContentStoreProvider = ({
     }));
     toast({ title: "Grupo Actualizado", description: `El grupo ha sido renombrado a "${name}".` });
   }, [toast]);
+
+  const updateGroupViewMode = useCallback((groupId: string, viewMode: ViewMode) => {
+    setAppData(prev => ({
+      ...prev,
+      groups: prev.groups.map(g => g.id === groupId ? { ...g, viewMode } : g)
+    }));
+  }, []);
   
   const confirmDeleteGroup = useCallback(() => {
     if(!groupToDelete) return;
@@ -366,6 +375,7 @@ export const ContentStoreProvider = ({
     addGroup,
     updateGroup,
     deleteGroup,
+    updateGroupViewMode,
     addItem,
     updateItem,
     deleteItem,
