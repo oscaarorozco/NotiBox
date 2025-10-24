@@ -8,6 +8,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command";
 import { useContentStore } from "@/hooks/use-content-store";
 import { FileText, Link, ImageIcon, ListTodo, Search } from "lucide-react";
@@ -49,45 +50,58 @@ export function CommandPalette() {
   }
 
   if (!mounted) {
-    return null;
+    return (
+        <Button
+            variant="outline"
+            className="hidden md:flex items-center gap-2 text-muted-foreground text-sm w-[200px] justify-start"
+            disabled
+        >
+            <Search className="h-4 w-4" />
+            <span>Cargando...</span>
+      </Button>
+    );
   }
 
   return (
     <>
       <Button
         variant="outline"
-        className="hidden md:flex items-center gap-2 text-muted-foreground text-sm"
+        className="hidden md:flex items-center gap-2 text-muted-foreground text-sm w-full max-w-sm justify-start"
         onClick={() => setOpen(true)}
       >
         <Search className="h-4 w-4" />
-        <span>Buscar...</span>
-        <kbd className="pointer-events-none ml-4 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+        <span>Buscar en todo el contenido...</span>
+        <kbd className="pointer-events-none ml-auto inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
           <span className="text-xs">⌘</span>K
         </kbd>
       </Button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
+        <DialogTitle className="sr-only">Paleta de Comandos</DialogTitle>
         <CommandInput placeholder="Busca en todo tu contenido..." />
         <CommandList>
           <CommandEmpty>No se encontraron resultados.</CommandEmpty>
-          {appData.groups.map(group => (
-            <CommandGroup key={group.id} heading={group.name}>
-              {appData.items
-                .filter(item => item.groupId === group.id)
-                .map(item => {
-                  const Icon = typeIcons[item.type];
-                  return (
-                    <CommandItem
-                      key={item.id}
-                      onSelect={() => handleSelect(item.id, item.type, (item as any).url)}
-                      className="cursor-pointer"
-                    >
-                      <Icon className="mr-2 h-4 w-4" />
-                      <span>{item.title}</span>
-                    </CommandItem>
-                  );
-                })}
-            </CommandGroup>
+          {appData.groups.map((group, index) => (
+            <React.Fragment key={group.id}>
+              <CommandGroup heading={group.name}>
+                {appData.items
+                  .filter(item => item.groupId === group.id)
+                  .map(item => {
+                    const Icon = typeIcons[item.type];
+                    return (
+                      <CommandItem
+                        key={item.id}
+                        onSelect={() => handleSelect(item.id, item.type, (item as any).url)}
+                        className="cursor-pointer"
+                      >
+                        <Icon className="mr-2 h-4 w-4" />
+                        <span>{item.title}</span>
+                      </CommandItem>
+                    );
+                  })}
+              </CommandGroup>
+              {index < appData.groups.length - 1 && <CommandSeparator />}
+             </React.Fragment>
           ))}
         </CommandList>
       </CommandDialog>

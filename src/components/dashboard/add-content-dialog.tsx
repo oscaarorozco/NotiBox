@@ -17,11 +17,9 @@ import { Label } from "@/components/ui/label";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, ArrowLeft, Plus, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2 } from "lucide-react";
 import { Card } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
-import { generateNoteContent } from "@/ai/flows/generate-content-flow";
-import { useToast } from "@/hooks/use-toast";
 
 type AddContentDialogProps = {
     trigger: ReactNode;
@@ -39,8 +37,7 @@ const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> 
 export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState(0);
-  const { toast } = useToast();
+  const [selectedType, setSelectedType] = useState(false);
 
   const isEditing = !!itemToEdit;
   
@@ -52,10 +49,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [tasks, setTasks] = useState<{ id: string; text: string; completed: boolean }[]>([]);
   const [newTaskText, setNewTaskText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -69,9 +62,9 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 case 'image': setUrl(itemToEdit.url); break;
                 case 'todo': setTasks(itemToEdit.tasks); break;
             }
-            setStep(1);
+            setSelectedType(true);
         } else {
-            setStep(0);
+            setSelectedType(false);
             setTitle("");
             setType("note");
             setContent("");
@@ -79,7 +72,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
             setTags("");
             setTasks([]);
             setNewTaskText("");
-            setAiPrompt("");
         }
     }
   }, [isOpen, itemToEdit, isEditing]);
@@ -156,30 +148,9 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
   const handleSelectType = (selectedType: ContentItemType) => {
     setType(selectedType);
-    setStep(1);
+    setSelectedType(true);
   }
   
-  const handleAiGenerate = async () => {
-      if (!aiPrompt) return;
-      setIsGenerating(true);
-      try {
-          const result = await generateNoteContent({ prompt: aiPrompt });
-          setTitle(result.title);
-          setContent(result.content);
-          setType('note');
-          setStep(1);
-      } catch (error) {
-          console.error("Error al generar contenido con IA", error);
-          toast({
-              title: "Error de Generación",
-              description: "No se pudo generar el contenido. Inténtalo de nuevo.",
-              variant: "destructive"
-          });
-      } finally {
-          setIsGenerating(false);
-      }
-  }
-
   const renderFormFields = () => (
     <>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -244,56 +215,30 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Contenido' : 'Agregar Nuevo Contenido'}</DialogTitle>
           <DialogDescription>
-            {step === 0 && !isEditing ? 'Selecciona el tipo de contenido que quieres agregar o créalo con IA.' : 'Rellena los detalles para tu nuevo elemento de contenido.'}
+            {!selectedType && !isEditing ? 'Selecciona el tipo de contenido que quieres agregar.' : 'Rellena los detalles para tu nuevo elemento de contenido.'}
           </DialogDescription>
         </DialogHeader>
 
-        {step === 0 && !isEditing && (
-            <div className="py-4">
-                <div className="grid grid-cols-2 gap-4">
-                    {contentTypes.map(({ type, label, icon: Icon }) => (
-                        <Card key={type} onClick={() => handleSelectType(type)} className="p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-accent hover:border-primary/50 transition-all text-center">
-                            <Icon className="h-8 w-8 text-primary" />
-                            <span className="font-semibold">{label}</span>
-                        </Card>
-                    ))}
-                </div>
-                <div className="mt-4 border rounded-lg p-4">
-                    <Label className="flex items-center gap-2 mb-2 font-semibold">
-                        <Sparkles className="h-5 w-5 text-primary" />
-                        Crear Nota con IA
-                    </Label>
-                     <Textarea 
-                        placeholder="Escribe una idea, por ej. 'Un resumen sobre la historia de la inteligencia artificial'..." 
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                        className="mb-2"
-                    />
-                    <Button className="w-full" onClick={handleAiGenerate} disabled={isGenerating}>
-                        {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        {isGenerating ? "Generando..." : "Generar Contenido"}
-                    </Button>
-                </div>
+        {!selectedType && !isEditing && (
+             <div className="grid grid-cols-2 gap-4 py-4">
+                {contentTypes.map(({ type, label, icon: Icon }) => (
+                    <Card key={type} onClick={() => handleSelectType(type)} className="p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-accent hover:border-primary/50 transition-all text-center">
+                        <Icon className="h-8 w-8 text-primary" />
+                        <span className="font-semibold">{label}</span>
+                    </Card>
+                ))}
             </div>
         )}
 
-        {step === 1 && (
+        {selectedType && (
             <div className="grid gap-4 py-4">
                 {renderFormFields()}
             </div>
         )}
 
-        <DialogFooter className="flex-row justify-between items-center sm:justify-between w-full">
-           {step === 1 && !isEditing && (
-                <Button variant="ghost" onClick={() => setStep(0)}>
-                    <ArrowLeft className="mr-2 h-4 w-4"/>
-                    Volver
-                </Button>
-           )}
-           <div className={cn(step === 0 && !isEditing && "w-full flex justify-end")}>
-             <Button variant="outline" onClick={() => setIsOpen(false)} className={cn(step === 0 && !isEditing && "w-full")}>Cancelar</Button>
-             {step === 1 && <Button onClick={handleSubmit} className="ml-2">{isEditing ? 'Guardar Cambios' : 'Agregar'}</Button>}
-           </div>
+        <DialogFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
+            {selectedType && <Button onClick={handleSubmit}>{isEditing ? 'Guardar Cambios' : 'Agregar'}</Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>
