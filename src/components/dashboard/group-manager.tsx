@@ -1,22 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { MoreHorizontal, PlusCircle, Edit, Trash, Folder } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { MoreHorizontal, Edit, Trash, ChevronsUpDown, Check, PlusCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -30,72 +24,72 @@ import { cn } from "@/lib/utils";
 
 export function GroupManager() {
   const { appData, activeGroupId, setActiveGroupId, addGroup, updateGroup, deleteGroup } = useContentStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
+  
   const [newGroupName, setNewGroupName] = useState("");
-  const [editingGroup, setEditingGroup] = useState<{id: string, name: string} | null>(null);
+  const [groupToRename, setGroupToRename] = useState<{id: string, name: string} | null>(null);
+
+  const activeGroup = appData.groups.find(g => g.id === activeGroupId);
 
   const handleAddGroup = () => {
     if (newGroupName.trim()) {
       addGroup(newGroupName.trim());
       setNewGroupName("");
+      setIsAddDialogOpen(false);
     }
   };
 
   const handleUpdateGroup = () => {
-    if (editingGroup && editingGroup.name.trim()) {
-      updateGroup(editingGroup.id, editingGroup.name.trim());
-      setEditingGroup(null);
+    if (groupToRename && groupToRename.name.trim()) {
+      updateGroup(groupToRename.id, groupToRename.name.trim());
+      setGroupToRename(null);
+      setIsRenameDialogOpen(false);
     }
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-            <Folder className="h-5 w-5" />
-            <span>Grupos</span>
-        </CardTitle>
-        <CardDescription>Organiza tu contenido en grupos.</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Nombre del nuevo grupo"
-            value={newGroupName}
-            onChange={(e) => setNewGroupName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddGroup()}
-            className="h-9"
-          />
-          <Button onClick={handleAddGroup} size="icon" className="h-9 w-9">
-            <PlusCircle className="h-4 w-4" />
+    <>
+      <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="w-full justify-between p-2 h-auto text-left"
+          >
+            <div className="truncate">
+                <span className="text-xs text-muted-foreground">Grupo</span>
+                <p className="font-semibold">{activeGroup?.name || 'Seleccionar...'}</p>
+            </div>
+            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
-        </div>
-        <div className="max-h-60 overflow-y-auto pr-2 space-y-1">
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-64" align="start">
           {appData.groups.map((group) => (
-            <div
+            <DropdownMenuItem
               key={group.id}
-              onClick={() => setActiveGroupId(group.id)}
-              className={cn(
-                "flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors",
-                activeGroupId === group.id
-                  ? "bg-accent text-accent-foreground"
-                  : "hover:bg-muted/50"
-              )}
+              className="flex justify-between items-center"
+              onClick={() => {
+                setActiveGroupId(group.id);
+                setIsMenuOpen(false);
+              }}
             >
-              <span className="font-medium text-sm truncate pr-2">{group.name}</span>
-              {group.id !== "1" && ( // Prevent actions on General group
+              <span className="truncate flex-1 pr-2">{group.name}</span>
+              {activeGroupId === group.id && <Check className="h-4 w-4" />}
+               {group.id !== "1" && (
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                  <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mr-2">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditingGroup(group); }}>
+                  <DropdownMenuContent side="right" sideOffset={8} onClick={e => e.stopPropagation()}>
+                    <DropdownMenuItem onClick={() => { setGroupToRename(group); setIsRenameDialogOpen(true); }}>
                       <Edit className="mr-2 h-4 w-4" />
                       Renombrar
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={(e) => { e.stopPropagation(); deleteGroup(group.id); }}
+                      onClick={() => deleteGroup(group.id)}
                       className="text-destructive"
                     >
                       <Trash className="mr-2 h-4 w-4" />
@@ -104,11 +98,40 @@ export function GroupManager() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-            </div>
+            </DropdownMenuItem>
           ))}
-        </div>
-      </CardContent>
-      <Dialog open={!!editingGroup} onOpenChange={() => setEditingGroup(null)}>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setIsAddDialogOpen(true)}>
+             <PlusCircle className="mr-2 h-4 w-4" />
+             Crear nuevo grupo
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Add Group Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Crear Nuevo Grupo</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Label htmlFor="new-group-name">Nombre del Grupo</Label>
+            <Input 
+              id="new-group-name" 
+              value={newGroupName} 
+              onChange={(e) => setNewGroupName(e.target.value)} 
+              onKeyDown={(e) => e.key === 'Enter' && handleAddGroup()}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleAddGroup}>Crear Grupo</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Rename Group Dialog */}
+      <Dialog open={isRenameDialogOpen} onOpenChange={() => { setIsRenameDialogOpen(false); setGroupToRename(null); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Renombrar Grupo</DialogTitle>
@@ -117,17 +140,17 @@ export function GroupManager() {
             <Label htmlFor="group-name">Nombre del Grupo</Label>
             <Input 
               id="group-name" 
-              value={editingGroup?.name || ''} 
-              onChange={(e) => setEditingGroup(g => g ? {...g, name: e.target.value} : null)} 
+              value={groupToRename?.name || ''} 
+              onChange={(e) => setGroupToRename(g => g ? {...g, name: e.target.value} : null)} 
               onKeyDown={(e) => e.key === 'Enter' && handleUpdateGroup()}
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingGroup(null)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => { setIsRenameDialogOpen(false); setGroupToRename(null);}}>Cancelar</Button>
             <Button onClick={handleUpdateGroup}>Guardar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </>
   );
 }

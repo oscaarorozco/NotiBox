@@ -7,7 +7,7 @@ import { AddContentDialog } from "./add-content-dialog";
 import { Button } from "../ui/button";
 
 export function ContentGrid() {
-  const { appData, activeGroupId, searchQuery, logAccess } = useContentStore();
+  const { appData, activeGroupId, searchQuery } = useContentStore();
 
   const filteredItems = appData.items.filter((item) => {
     const inGroup = item.groupId === activeGroupId;
@@ -31,12 +31,12 @@ export function ContentGrid() {
 
   if (filteredItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border rounded-lg h-60">
+      <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border rounded-lg min-h-[50vh]">
         <h3 className="text-xl font-semibold font-headline text-foreground/80">Aún no hay contenido</h3>
         <p className="text-muted-foreground mt-2 max-w-sm">
           {searchQuery 
             ? `No se encontraron resultados para "${searchQuery}".`
-            : 'Haz clic en "Agregar Contenido" para empezar a organizar tu vida digital.'}
+            : 'Haz clic en "Agregar Contenido" en la barra lateral para empezar a organizar tu vida digital.'}
         </p>
         {!searchQuery && (
           <AddContentDialog trigger={
@@ -50,14 +50,10 @@ export function ContentGrid() {
     );
   }
   
-  const handleCardClick = (id: string) => {
-    logAccess(id, 'item');
-  };
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
       {filteredItems.map((item) => (
-        <ContentCard key={item.id} item={item} onCardClick={handleCardClick} />
+        <ContentCard key={item.id} item={item} />
       ))}
     </div>
   );

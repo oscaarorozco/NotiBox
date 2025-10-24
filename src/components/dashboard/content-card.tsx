@@ -19,11 +19,10 @@ import { Progress } from "../ui/progress";
 
 type ContentCardProps = {
   item: ContentItem;
-  onCardClick: (id: string) => void;
 };
 
-export function ContentCard({ item, onCardClick }: ContentCardProps) {
-  const { deleteItem, updateItem } = useContentStore();
+export function ContentCard({ item }: ContentCardProps) {
+  const { deleteItem, updateItem, logAccess } = useContentStore();
 
   const typeTranslations: {[key: string]: string} = {
     'note': 'Nota',
@@ -85,7 +84,7 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
             <div className="space-y-3">
                 <div className="space-y-2">
                     {item.tasks.slice(0, 3).map(task => (
-                        <div key={task.id} className="flex items-center gap-2" onClick={(e) => handleToggleTask(e, task.id)}>
+                        <div key={task.id} className="flex items-center gap-2 cursor-pointer" onClick={(e) => handleToggleTask(e, task.id)}>
                             {task.completed ? <CheckCircle className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
                             <span className={`text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                                 {task.text}
@@ -102,6 +101,9 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
                     <p className="text-xs text-muted-foreground text-right mt-1">{completedTasks} de {totalTasks} completadas</p>
                   </div>
                 )}
+                 {totalTasks === 0 && (
+                  <p className="text-sm text-muted-foreground">No hay tareas pendientes.</p>
+                )}
             </div>
         )
       default:
@@ -110,7 +112,7 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
   };
   
   const handleItemClick = () => {
-    onCardClick(item.id);
+    logAccess(item.id, 'item');
     if (item.type === 'link') {
         window.open(item.url, '_blank', 'noopener,noreferrer');
     }
