@@ -13,6 +13,7 @@ import {
 import { useContentStore } from "@/hooks/use-content-store";
 import { FileText, Link, ImageIcon, ListTodo, Search } from "lucide-react";
 import { Button } from "../ui/button";
+import { DialogTitle } from "../ui/dialog";
 
 const typeIcons: { [key: string]: React.ElementType } = {
   note: FileText,
@@ -53,11 +54,11 @@ export function CommandPalette() {
     return (
         <Button
             variant="outline"
-            className="hidden md:flex items-center gap-2 text-muted-foreground text-sm w-[200px] justify-start"
+            className="hidden md:flex items-center gap-2 text-muted-foreground text-sm w-full max-w-sm justify-start"
             disabled
         >
             <Search className="h-4 w-4" />
-            <span>Cargando...</span>
+            <span>Buscando...</span>
       </Button>
     );
   }
