@@ -1,6 +1,6 @@
 "use client";
 
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { Input } from "@/components/ui/input";
 import { Search, ListFilter, PlusCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -60,6 +60,14 @@ export function ContentToolbar() {
                     />
                 </div>
                  <div className="flex items-center gap-2">
+                    <AddContentDialog 
+                        trigger={
+                            <Button variant="outline" size="icon" disabled={!activeGroupId}>
+                                <PlusCircle className="h-4 w-4" />
+                            </Button>
+                        }
+                        defaultGroupId={activeGroupId!}
+                    />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="w-full sm:w-auto" disabled={!activeGroupId}>

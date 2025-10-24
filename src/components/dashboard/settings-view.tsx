@@ -7,6 +7,7 @@ import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from '@/hooks/use-toast';
 import type { AppData } from '@/lib/types';
+import { Download, Upload } from 'lucide-react';
 
 export function SettingsView() {
   const { exportData, importData } = useContentStore();
@@ -57,7 +58,10 @@ export function SettingsView() {
               <h3 className="font-semibold">Exportar Datos</h3>
               <p className="text-sm text-muted-foreground">Descarga todos tus grupos, contenido y estadísticas como un archivo JSON.</p>
             </div>
-            <Button onClick={exportData}>Exportar</Button>
+            <Button onClick={exportData}>
+              <Download className="mr-2 h-4 w-4"/>
+              Exportar
+            </Button>
           </div>
           <Separator className="my-6" />
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
@@ -68,7 +72,10 @@ export function SettingsView() {
                 <strong className="block text-destructive">Advertencia: Esto sobrescribirá todos tus datos actuales.</strong>
               </p>
             </div>
-            <Button variant="outline" onClick={handleImportClick}>Importar</Button>
+            <Button variant="outline" onClick={handleImportClick}>
+              <Upload className="mr-2 h-4 w-4"/>
+              Importar
+            </Button>
             <input
               type="file"
               ref={fileInputRef}

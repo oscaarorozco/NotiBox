@@ -19,7 +19,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { cn } from "@/lib/utils";
@@ -51,10 +51,15 @@ export function GroupManager() {
     }
   };
   
-  const handleSelect = (callback: () => void) => {
-    callback();
+  const handleSelectGroup = (groupId: string) => {
+    setActiveGroupId(groupId)
     setIsPopoverOpen(false);
   };
+
+  const handleOpenAddDialog = () => {
+    setIsPopoverOpen(false);
+    setIsAddDialogOpen(true);
+  }
 
   return (
     <>
@@ -83,8 +88,8 @@ export function GroupManager() {
                     <CommandItem
                         key={group.id}
                         value={group.name}
-                        onSelect={() => handleSelect(() => setActiveGroupId(group.id))}
-                        className="flex justify-between items-center cursor-pointer"
+                        onSelect={() => handleSelectGroup(group.id)}
+                        className="flex justify-between items-center"
                     >
                         <div className="flex items-center flex-1 truncate">
                             <Check
@@ -93,24 +98,24 @@ export function GroupManager() {
                             <span className="truncate">{group.name}</span>
                         </div>
                         {group.id !== "1" && (
-                            <DropdownMenu>
+                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
                                         className="h-6 w-6 shrink-0 -mr-1"
-                                        onClick={(e) => e.stopPropagation()} // Prevent CommandItem onSelect
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                                     >
                                         <MoreHorizontal className="h-4 w-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent side="right" sideOffset={8} onClick={(e) => e.stopPropagation()}>
-                                    <DropdownMenuItem onSelect={() => { setIsRenameDialogOpen(true); setGroupToRename(group); }}>
+                                <DropdownMenuContent side="right" align="start" sideOffset={8} onClick={(e) => e.stopPropagation()}>
+                                    <DropdownMenuItem onSelect={() => { setIsPopoverOpen(false); setGroupToRename(group); setIsRenameDialogOpen(true); }}>
                                         <Edit className="mr-2 h-4 w-4" />
                                         Renombrar
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        onSelect={() => deleteGroup(group.id)}
+                                        onSelect={() => { setIsPopoverOpen(false); deleteGroup(group.id); }}
                                         className="text-destructive focus:text-destructive"
                                     >
                                         <Trash className="mr-2 h-4 w-4" />
@@ -125,7 +130,7 @@ export function GroupManager() {
              </CommandList>
              <DropdownMenuSeparator />
               <CommandGroup>
-                <CommandItem onSelect={() => handleSelect(() => setIsAddDialogOpen(true))} className="cursor-pointer">
+                <CommandItem onSelect={handleOpenAddDialog}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Crear nuevo grupo
                 </CommandItem>
@@ -158,7 +163,7 @@ export function GroupManager() {
       </Dialog>
       
       {/* Rename Group Dialog */}
-      <Dialog open={isRenameDialogOpen} onOpenChange={() => { setIsRenameDialogOpen(false); setGroupToRename(null); }}>
+      <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Renombrar Grupo</DialogTitle>
