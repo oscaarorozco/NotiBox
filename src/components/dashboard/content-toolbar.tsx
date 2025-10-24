@@ -1,12 +1,11 @@
 "use client";
 
 import { useContentStore } from "@/hooks/use-content-store";
-import { ListFilter, PlusCircle } from "lucide-react";
+import { ListFilter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { SortOrder, ContentItemType } from "@/lib/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { AddContentDialog } from "./add-content-dialog";
 import { CommandPalette } from "./command-palette";
 
 export function ContentToolbar() {
@@ -47,18 +46,10 @@ export function ContentToolbar() {
              </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                 <div className="flex items-center gap-2">
-                    <div className="md:hidden w-full">
+                    <div className="w-full sm:w-auto">
                       <CommandPalette />
                     </div>
-                    <AddContentDialog 
-                        trigger={
-                            <Button className="w-full sm:w-auto" disabled={!activeGroupId}>
-                                <PlusCircle className="mr-0 sm:mr-2 h-4 w-4" />
-                                <span className="hidden sm:inline">Agregar</span>
-                            </Button>
-                        }
-                        defaultGroupId={activeGroupId!}
-                    />
+                    
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="flex-1 sm:flex-initial" disabled={!activeGroupId}>

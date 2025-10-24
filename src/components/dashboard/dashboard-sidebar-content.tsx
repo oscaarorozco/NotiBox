@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Book, LayoutDashboard, LineChart, Settings } from "lucide-react";
+import { Book, LayoutDashboard, LineChart, Settings, PlusCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
   SidebarContent,
@@ -13,9 +13,13 @@ import {
 } from "@/components/ui/sidebar";
 import { GroupManager } from "./group-manager";
 import { ThemeToggle } from "../ui/theme-toggle";
+import { AddContentDialog } from "./add-content-dialog";
+import { useContentStore } from "@/hooks/use-content-store";
+
 
 export function DashboardSidebarContent() {
   const pathname = usePathname();
+  const { activeGroupId } = useContentStore();
 
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Panel" },
@@ -38,6 +42,17 @@ export function DashboardSidebarContent() {
             <SidebarMenu>
                 <SidebarMenuItem>
                     <GroupManager />
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <AddContentDialog 
+                        trigger={
+                           <SidebarMenuButton tooltip={{ children: 'Agregar Contenido' }} disabled={!activeGroupId}>
+                                <PlusCircle/>
+                                <span>Agregar Contenido</span>
+                            </SidebarMenuButton>
+                        }
+                        defaultGroupId={activeGroupId!}
+                    />
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarContent>
