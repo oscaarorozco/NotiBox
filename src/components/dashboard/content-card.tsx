@@ -31,6 +31,7 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,8 @@ type ContentCardProps = {
 
 const toPascalCase = (str: string) => {
     if (!str) return 'Folder';
-    return str.replace(/(^\w|-\w)/g, (g) => g.replace(/-/, "").toUpperCase());
+    const camelCase = str.replace(/-(\w)/g, (_, c) => c.toUpperCase());
+    return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
 
 const ImageViewer = ({ item, trigger, onOpen }: { item: ImageItem, trigger: React.ReactNode, onOpen: () => void }) => {
@@ -49,6 +51,7 @@ const ImageViewer = ({ item, trigger, onOpen }: { item: ImageItem, trigger: Reac
         <Dialog>
             <DialogTrigger asChild onClick={(e) => { e.stopPropagation(); onOpen(); }}>{trigger}</DialogTrigger>
             <DialogContent className="max-w-4xl h-[80vh] p-0">
+                <DialogTitle className="sr-only">{item.title}</DialogTitle>
                 <Image src={item.url} alt={item.title} fill className="object-contain p-4"/>
             </DialogContent>
         </Dialog>
@@ -163,8 +166,6 @@ export function ContentCard({ item }: ContentCardProps) {
   };
   
   const handleItemClick = (e: React.MouseEvent) => {
-    // Stop propagation to prevent parent handlers, but don't log access here.
-    // Access is logged on more specific actions.
     e.stopPropagation();
   }
 
