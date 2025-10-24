@@ -15,13 +15,6 @@ import { cn } from "@/lib/utils";
 
 export type LucideIcon = keyof typeof LucideIcons;
 
-const iconList = Object.keys(LucideIcons).filter(
-  (key) =>
-    typeof LucideIcons[key as keyof typeof LucideIcons] === 'object' &&
-    key !== "createLucideIcon" && key !== "icons" && key !== "LucideIcon"
-) as LucideIcon[];
-
-
 interface IconPickerProps {
   value?: string;
   onChange: (icon?: string) => void;
@@ -32,13 +25,19 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
   const [search, setSearch] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(false);
 
+  const iconList = React.useMemo(() => Object.keys(LucideIcons).filter(
+      (key) =>
+        typeof LucideIcons[key as keyof typeof LucideIcons] === 'object' &&
+        key !== "createLucideIcon" && key !== "icons" && key !== "LucideIcon"
+    ) as LucideIcon[], []);
+
   const filteredIcons = React.useMemo(() => {
     if (!iconList) return [];
     if (!search) return iconList;
     return iconList.filter((icon) =>
       icon.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, iconList]);
 
   const SelectedIcon = value ? LucideIcons[value as LucideIcon] : null;
 
@@ -69,7 +68,7 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
           />
           <ScrollArea className="h-48">
             <div className="grid grid-cols-5 gap-1">
-              {filteredIcons.map((iconName) => {
+              {filteredIcons && filteredIcons.map((iconName) => {
                 const Icon = LucideIcons[iconName];
                 if (!Icon || typeof Icon !== 'object') return null;
                 return (
