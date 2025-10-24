@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle } from "lucide-react";
+import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle, FolderSymlink, Copy, Expand } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -10,19 +10,49 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { ContentItem, TodoItem } from "@/lib/types";
+import type { ContentItem, ImageItem } from "@/lib/types";
 import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { AddContentDialog } from "./add-content-dialog";
 import { Progress } from "../ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
 type ContentCardProps = {
   item: ContentItem;
 };
 
+const ImageViewer = ({ item, trigger }: { item: ImageItem, trigger: React.ReactNode }) => {
+    return (
+        <Dialog>
+            <DialogTrigger asChild onClick={(e) => e.stopPropagation()}>{trigger}</DialogTrigger>
+            <DialogContent className="max-w-4xl h-[80vh] p-0">
+                <Image src={item.url} alt={item.title} fill className="object-contain p-4"/>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export function ContentCard({ item }: ContentCardProps) {
-  const { deleteItem, updateItem, logAccess } = useContentStore();
+  const { appData, deleteItem, updateItem, logAccess, moveItem, duplicateItem } = useContentStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const typeTranslations: {[key: string]: string} = {
     'note': 'Nota',
@@ -62,6 +92,11 @@ export function ContentCard({ item }: ContentCardProps) {
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
+             <ImageViewer item={item} trigger={
+                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <Expand className="h-8 w-8 text-white" />
+                </div>
+            } />
           </div>
         );
       case "note":
@@ -116,7 +151,13 @@ export function ContentCard({ item }: ContentCardProps) {
     if (item.type === 'link') {
         window.open(item.url, '_blank', 'noopener,noreferrer');
     }
+    if(item.type === 'image') {
+        // The click is handled by the ImageViewer trigger now
+        return;
+    }
   }
+
+  const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
 
   return (
     <Card 
@@ -150,10 +191,52 @@ export function ContentCard({ item }: ContentCardProps) {
                 <span className="sr-only">Editar</span>
             </Button>
         } />
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/80 hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}>
-            <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Eliminar</span>
-        </Button>
+        
+        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/80 hover:text-destructive" onClick={(e) => { e.stopPropagation(); setIsMenuOpen(true) }}>
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Eliminar</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem onClick={() => { deleteItem(item.id); setIsMenuOpen(false); }} className="text-destructive focus:text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Confirmar eliminación
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                    <FolderSymlink className="h-4 w-4" />
+                    <span className="sr-only">Mover</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger disabled={otherGroups.length === 0}>
+                        <FolderSymlink className="mr-2 h-4 w-4" />
+                        <span>Mover a...</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                             {otherGroups.map(group => (
+                                <DropdownMenuItem key={group.id} onClick={() => moveItem(item.id, group.id)}>
+                                    <span>{group.name}</span>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                </DropdownMenuSub>
+                 <DropdownMenuItem onClick={() => duplicateItem(item.id)}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    <span>Duplicar</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+
       </div>
 
        <div className="absolute bottom-4 right-4 flex items-center gap-1 text-xs text-muted-foreground">

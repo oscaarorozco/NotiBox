@@ -1,13 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { MoreHorizontal, Edit, Trash, ChevronsUpDown, Check, PlusCircle } from "lucide-react";
+import { MoreHorizontal, Edit, Trash, ChevronsUpDown, Check, PlusCircle, FolderSymlink } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,7 +94,7 @@ export function GroupManager() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => deleteGroup(group.id)}
-                      className="text-destructive"
+                      className="text-destructive focus:text-destructive"
                     >
                       <Trash className="mr-2 h-4 w-4" />
                       Eliminar

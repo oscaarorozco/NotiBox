@@ -9,6 +9,16 @@ import React, {
 } from "react";
 import type { AppData, Group, ContentItem, StatLog, TodoItem } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const LOCAL_STORAGE_KEY = "content-hub-data";
 
@@ -33,6 +43,8 @@ interface ContentStore {
   addItem: (item: Omit<ContentItem, "id" | "createdAt" | "accessCount" | "lastAccessed">) => void;
   updateItem: (item: ContentItem) => void;
   deleteItem: (id: string) => void;
+  moveItem: (itemId: string, targetGroupId: string) => void;
+  duplicateItem: (itemId: string) => void;
   // Stat actions
   logAccess: (targetId: string, targetType: "group" | "item") => void;
   // Data actions
@@ -41,6 +53,30 @@ interface ContentStore {
 }
 
 const ContentStoreContext = createContext<ContentStore | null>(null);
+
+type DeletionConfirmDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  title: string;
+  description: string;
+};
+
+const DeletionConfirmDialog: React.FC<DeletionConfirmDialogProps> = ({ open, onOpenChange, onConfirm, title, description }) => (
+  <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{title}</AlertDialogTitle>
+        <AlertDialogDescription>{description}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+        <AlertDialogAction onClick={onConfirm} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+);
+
 
 export const ContentStoreProvider = ({
   children,
@@ -52,6 +88,10 @@ export const ContentStoreProvider = ({
   const [activeGroupId, setActiveGroupIdState] = useState<string | null>("1");
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+
+  const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
 
   useEffect(() => {
     try {
@@ -142,18 +182,25 @@ export const ContentStoreProvider = ({
     }));
     toast({ title: "Grupo Actualizado", description: `El grupo ha sido renombrado a "${name}".` });
   }, [toast]);
-
-  const deleteGroup = useCallback((id: string) => {
+  
+  const confirmDeleteGroup = useCallback(() => {
+    if(!groupToDelete) return;
     setAppData((prev) => {
-      const newGroups = prev.groups.filter((g) => g.id !== id);
-      const newItems = prev.items.filter((i) => i.groupId !== id);
-      if (activeGroupId === id) {
+      const newGroups = prev.groups.filter((g) => g.id !== groupToDelete);
+      const newItems = prev.items.filter((i) => i.groupId !== groupToDelete);
+      if (activeGroupId === groupToDelete) {
         setActiveGroupId(newGroups[0]?.id || null);
       }
       return { ...prev, groups: newGroups, items: newItems };
     });
     toast({ title: "Grupo Eliminado", description: "El grupo y su contenido han sido eliminados." });
-  }, [activeGroupId, toast, setActiveGroupId]);
+    setGroupToDelete(null);
+  }, [activeGroupId, toast, setActiveGroupId, groupToDelete]);
+
+  const deleteGroup = useCallback((id: string) => {
+    setGroupToDelete(id);
+  }, []);
+
 
   const addItem = useCallback((itemData: Omit<ContentItem, "id" | "createdAt" | "accessCount" | "lastAccessed">) => {
     const newItem: ContentItem = {
@@ -180,11 +227,42 @@ export const ContentStoreProvider = ({
     toast({ title: "Elemento Actualizado", description: `"${updatedItem.title}" ha sido actualizado.` });
   }, [toast]);
   
-  const deleteItem = useCallback((id: string) => {
-    setAppData((prev) => ({ ...prev, items: prev.items.filter((i) => i.id !== id) }));
+  const confirmDeleteItem = useCallback(() => {
+    if(!itemToDelete) return;
+    setAppData((prev) => ({ ...prev, items: prev.items.filter((i) => i.id !== itemToDelete) }));
     toast({ title: "Elemento Eliminado", description: "El elemento ha sido eliminado." });
+    setItemToDelete(null);
+  }, [itemToDelete, toast]);
+
+  const deleteItem = useCallback((id: string) => {
+    setItemToDelete(id);
+  }, []);
+  
+  const moveItem = useCallback((itemId: string, targetGroupId: string) => {
+      setAppData(prev => ({
+          ...prev,
+          items: prev.items.map(item => item.id === itemId ? { ...item, groupId: targetGroupId } : item)
+      }));
+      toast({ title: "Elemento Movido", description: "El elemento ha sido movido a otro grupo."});
   }, [toast]);
 
+  const duplicateItem = useCallback((itemId: string) => {
+    setAppData(prev => {
+        const itemToDuplicate = prev.items.find(i => i.id === itemId);
+        if (!itemToDuplicate) return prev;
+
+        const duplicatedItem: ContentItem = {
+            ...itemToDuplicate,
+            id: Date.now().toString(),
+            title: `${itemToDuplicate.title} (copia)`,
+            createdAt: new Date().toISOString(),
+            accessCount: 0,
+            lastAccessed: null,
+        };
+        return { ...prev, items: [...prev.items, duplicatedItem] };
+    });
+    toast({ title: "Elemento Duplicado", description: "Se ha creado una copia del elemento." });
+  }, [toast]);
 
   const exportData = useCallback(() => {
     try {
@@ -229,6 +307,8 @@ export const ContentStoreProvider = ({
     addItem,
     updateItem,
     deleteItem,
+    moveItem,
+    duplicateItem,
     logAccess,
     exportData,
     importData,
@@ -237,6 +317,20 @@ export const ContentStoreProvider = ({
   return (
     <ContentStoreContext.Provider value={value}>
       {children}
+      <DeletionConfirmDialog 
+        open={!!groupToDelete} 
+        onOpenChange={(open) => !open && setGroupToDelete(null)}
+        onConfirm={confirmDeleteGroup}
+        title="¿Estás seguro de que quieres eliminar este grupo?"
+        description="Esta acción no se puede deshacer. Todos los contenidos dentro de este grupo también serán eliminados permanentemente."
+      />
+      <DeletionConfirmDialog 
+        open={!!itemToDelete} 
+        onOpenChange={(open) => !open && setItemToDelete(null)}
+        onConfirm={confirmDeleteItem}
+        title="¿Estás seguro de que quieres eliminar este elemento?"
+        description="Esta acción no se puede deshacer. El elemento se eliminará permanentemente."
+      />
     </ContentStoreContext.Provider>
   );
 };
