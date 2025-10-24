@@ -28,7 +28,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { useContentStore } from "@/hooks/use-content-store";
 import { SidebarMenuButton } from "../ui/sidebar";
-import { IconPicker, LucideIcon } from "../icon-picker";
 
 export function GroupManager() {
   const { appData, activeGroupId, setActiveGroupId, addGroup, updateGroup, deleteGroup } = useContentStore();
@@ -39,7 +38,7 @@ export function GroupManager() {
   const [groupToRename, setGroupToRename] = useState<{id: string, name: string, icon?: string} | null>(null);
 
   const activeGroup = appData.groups.find(g => g.id === activeGroupId);
-  const ActiveGroupIcon = LucideIcons[activeGroup?.icon as keyof typeof LucideIcons] || Folder;
+  const ActiveGroupIcon = activeGroup?.icon && LucideIcons[activeGroup.icon as keyof typeof LucideIcons] ? LucideIcons[activeGroup.icon as keyof typeof LucideIcons] : Folder;
 
   const handleAddGroup = () => {
     if (newGroupName.trim()) {
@@ -76,7 +75,7 @@ export function GroupManager() {
             <DropdownMenuLabel>Seleccionar Grupo</DropdownMenuLabel>
             <DropdownMenuRadioGroup value={activeGroupId || ""} onValueChange={setActiveGroupId}>
                 {appData.groups.map(group => {
-                   const GroupIcon = LucideIcons[group.icon as keyof typeof LucideIcons] || Folder;
+                   const GroupIcon = group.icon && LucideIcons[group.icon as keyof typeof LucideIcons] ? LucideIcons[group.icon as keyof typeof LucideIcons] : Folder;
                    return (
                     <DropdownMenuRadioItem key={group.id} value={group.id} className="truncate pr-8 flex items-center gap-2">
                        <GroupIcon className="h-4 w-4 text-muted-foreground" />
@@ -100,17 +99,21 @@ export function GroupManager() {
                     <span>Renombrar Grupo</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                    <div className="p-2 space-y-2">
+                    <div className="p-2 space-y-2 w-48">
                          <p className="text-sm text-muted-foreground">Renombrar "{activeGroup?.name}"</p>
                         <Input 
                             id="rename-group-input"
+                            placeholder="Nuevo nombre"
                             value={groupToRename?.name || ''}
                             onChange={(e) => setGroupToRename(prev => prev ? {...prev, name: e.target.value} : null)}
                             onKeyDown={(e) => { if(e.key === 'Enter') handleUpdateGroup() }}
                         />
-                        <IconPicker 
-                           value={groupToRename?.icon} 
-                           onChange={(icon) => setGroupToRename(prev => prev ? {...prev, icon} : null)} 
+                         <Input 
+                            id="rename-group-icon"
+                            placeholder="Nombre del icono"
+                           value={groupToRename?.icon || ''} 
+                           onChange={(e) => setGroupToRename(prev => prev ? {...prev, icon: e.target.value} : null)} 
+                           onKeyDown={(e) => { if(e.key === 'Enter') handleUpdateGroup() }}
                         />
                          <Button size="sm" className="w-full mt-2" onClick={handleUpdateGroup}>Renombrar</Button>
                     </div>
@@ -145,11 +148,17 @@ export function GroupManager() {
                 value={newGroupName} 
                 onChange={(e) => setNewGroupName(e.target.value)} 
                 autoFocus
+                placeholder="Ej: Proyectos, Ideas, etc."
                 />
             </div>
             <div className="space-y-2">
-                 <Label>Icono del Grupo</Label>
-                 <IconPicker value={newGroupIcon} onChange={setNewGroupIcon} />
+                 <Label htmlFor="new-group-icon">Icono del Grupo (opcional)</Label>
+                 <Input 
+                    id="new-group-icon"
+                    value={newGroupIcon} 
+                    onChange={(e) => setNewGroupIcon(e.target.value)} 
+                    placeholder="Ej: folder, home, lightbulb"
+                 />
             </div>
           </div>
           <DialogFooter>

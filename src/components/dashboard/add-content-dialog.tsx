@@ -24,10 +24,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, BrainCircuit } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
-import { IconPicker } from "../icon-picker";
 
 type AddContentDialogProps = {
     trigger: ReactNode;
@@ -240,10 +239,8 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
             </AccordionTrigger>
             <AccordionContent className="pt-4 space-y-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Icono</Label>
-                    <div className="col-span-3">
-                        <IconPicker value={icon} onChange={setIcon} />
-                    </div>
+                    <Label htmlFor="icon-name" className="text-right">Icono</Label>
+                    <Input id="icon-name" value={icon || ''} onChange={(e) => setIcon(e.target.value)} className="col-span-3" placeholder="Ej: folder, home, lightbulb" />
                 </div>
                 <div className="grid grid-cols-4 items-start gap-4">
                     <Label className="text-right pt-2">Aspecto</Label>
