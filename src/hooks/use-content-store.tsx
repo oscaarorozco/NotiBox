@@ -58,15 +58,16 @@ export const ContentStoreProvider = ({
     try {
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedData) {
-        setAppData(JSON.parse(storedData));
-        if (JSON.parse(storedData).groups.length > 0) {
-          setActiveGroupId(JSON.parse(storedData).groups[0].id)
+        const parsedData = JSON.parse(storedData);
+        setAppData(parsedData);
+        if (parsedData.groups.length > 0) {
+          setActiveGroupId(parsedData.groups[0].id);
         } else {
-          setActiveGroupId(null)
+          setActiveGroupId(null);
         }
       } else {
         setAppData(defaultAppData);
-        setActiveGroupId(defaultAppData.groups[0]?.id || null)
+        setActiveGroupId(defaultAppData.groups[0]?.id || null);
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
@@ -205,29 +206,29 @@ export const ContentStoreProvider = ({
     }
   }, [toast]);
 
+  const value = {
+    appData,
+    isLoading,
+    activeGroupId,
+    setActiveGroupId: (id: string | null) => {
+      setActiveGroupId(id);
+      if (id) logAccess(id, 'group');
+    },
+    searchQuery,
+    setSearchQuery,
+    addGroup,
+    updateGroup,
+    deleteGroup,
+    addItem,
+    updateItem,
+    deleteItem,
+    logAccess,
+    exportData,
+    importData,
+  };
+
   return (
-    <ContentStoreContext.Provider
-      value={{
-        appData,
-        isLoading,
-        activeGroupId,
-        setActiveGroupId: (id) => {
-          setActiveGroupId(id);
-          if (id) logAccess(id, 'group');
-        },
-        searchQuery,
-        setSearchQuery,
-        addGroup,
-        updateGroup,
-        deleteGroup,
-        addItem,
-        updateItem,
-        deleteItem,
-        logAccess,
-        exportData,
-        importData,
-      }}
-    >
+    <ContentStoreContext.Provider value={value}>
       {children}
     </ContentStoreContext.Provider>
   );
