@@ -54,6 +54,21 @@ export function ContentList() {
     }
   }
 
+  const renderContentSummary = (item: ContentItem) => {
+    switch(item.type) {
+      case 'note':
+        return <p className="truncate max-w-xs">{item.content}</p>;
+      case 'link':
+      case 'image':
+        return <p className="truncate max-w-xs">{item.url}</p>;
+      case 'todo':
+        const completed = item.tasks.filter(t => t.completed).length;
+        return `${completed} de ${item.tasks.length} completadas`;
+      default:
+        return '-';
+    }
+  };
+
   if (filteredItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border rounded-lg min-h-[50vh]">
@@ -74,9 +89,10 @@ export function ContentList() {
           <TableRow>
             <TableHead className="w-[50px]"></TableHead>
             <TableHead>Título</TableHead>
-            <TableHead className="hidden md:table-cell">Tipo</TableHead>
-            <TableHead className="hidden lg:table-cell">Etiquetas</TableHead>
-            <TableHead className="hidden md:table-cell text-right">Fecha de Creación</TableHead>
+            <TableHead className="hidden md:table-cell">Contenido</TableHead>
+            <TableHead className="hidden lg:table-cell">Tipo</TableHead>
+            <TableHead className="hidden xl:table-cell">Etiquetas</TableHead>
+            <TableHead className="hidden lg:table-cell text-right">Fecha de Creación</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -99,20 +115,23 @@ export function ContentList() {
                     item.title
                   )}
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
+                <TableCell className="hidden md:table-cell text-muted-foreground">
+                  {renderContentSummary(item)}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
                     <div className="flex items-center gap-2">
                         <TypeIcon className="h-4 w-4 text-muted-foreground"/>
                         <span className="capitalize">{item.type}</span>
                     </div>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
+                <TableCell className="hidden xl:table-cell">
                   <div className="flex flex-wrap gap-1">
                     {item.tags.slice(0, 3).map((tag) => (
                       <Badge key={tag} variant="secondary">{tag}</Badge>
                     ))}
                   </div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell text-right text-muted-foreground">
+                <TableCell className="hidden lg:table-cell text-right text-muted-foreground">
                   {format(new Date(item.createdAt), "dd MMM, yyyy", { locale: es })}
                 </TableCell>
                 <TableCell>
