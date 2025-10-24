@@ -55,9 +55,10 @@ export function ContentToolbar() {
                 </p>
              </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                <div className="flex items-center gap-2">
+                <div className="flex-1 sm:flex-initial">
                     <CommandPalette />
-                    
+                </div>
+                <div className="flex items-center gap-2">
                     <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as SortOrder)} disabled={!activeGroupId}>
                         <SelectTrigger className="w-full sm:w-[160px] flex-1 sm:flex-initial">
                             <SelectValue placeholder="Ordenar por..." />
@@ -68,14 +69,15 @@ export function ContentToolbar() {
                             ))}
                         </SelectContent>
                     </Select>
-                 </div>
-                 <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
-                    <Button variant="ghost" size="icon" className={cn("h-8 w-8", activeGroup?.viewMode === 'grid' && 'bg-background shadow-sm')} onClick={() => handleViewModeChange('grid')} disabled={!activeGroupId}>
-                        <LayoutGrid className="h-4 w-4"/>
-                    </Button>
-                     <Button variant="ghost" size="icon" className={cn("h-8 w-8", activeGroup?.viewMode === 'list' && 'bg-background shadow-sm')} onClick={() => handleViewModeChange('list')} disabled={!activeGroupId}>
-                        <List className="h-4 w-4"/>
-                    </Button>
+                 
+                    <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
+                        <Button variant="ghost" size="icon" className={cn("h-8 w-8", activeGroup?.viewMode === 'grid' && 'bg-background shadow-sm')} onClick={() => handleViewModeChange('grid')} disabled={!activeGroupId}>
+                            <LayoutGrid className="h-4 w-4"/>
+                        </Button>
+                        <Button variant="ghost" size="icon" className={cn("h-8 w-8", activeGroup?.viewMode === 'list' && 'bg-background shadow-sm')} onClick={() => handleViewModeChange('list')} disabled={!activeGroupId}>
+                            <List className="h-4 w-4"/>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -160,6 +160,15 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     setIsOpen(false);
   };
   
+  const FormFieldWrapper = ({ label, htmlFor, children }: { label: string, htmlFor: string, children: ReactNode }) => (
+    <div className="grid grid-cols-1 sm:grid-cols-4 items-start gap-2 sm:gap-4">
+      <Label htmlFor={htmlFor} className="text-left sm:text-right sm:pt-2">
+        {label}
+      </Label>
+      <div className="col-span-1 sm:col-span-3">{children}</div>
+    </div>
+  );
+  
   const renderFormFields = () => (
     <Accordion type="multiple" defaultValue={['item-details']} className="w-full">
         <AccordionItem value="item-details">
@@ -170,58 +179,53 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </div>
             </AccordionTrigger>
             <AccordionContent className="pt-4 space-y-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="title" className="text-right">Título</Label>
-                    <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="col-span-3" />
-                </div>
+                <FormFieldWrapper label="Título" htmlFor="title">
+                    <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                </FormFieldWrapper>
+
                 {type === "note" && (
-                    <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="content" className="text-right">Contenido</Label>
-                    <Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} className="col-span-3 min-h-32" />
-                    </div>
+                    <FormFieldWrapper label="Contenido" htmlFor="content">
+                        <Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} className="min-h-32" />
+                    </FormFieldWrapper>
                 )}
                 {type === "link" && (
-                    <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="url" className="text-right">URL</Label>
-                    <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} className="col-span-3" />
-                    </div>
+                    <FormFieldWrapper label="URL" htmlFor="url">
+                        <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} />
+                    </FormFieldWrapper>
                 )}
                 {type === "image" && (
-                    <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="image-file" className="text-right">Imagen</Label>
-                    <div className="col-span-3 grid gap-2">
-                        <Input id="image-file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
-                        <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste}/>
-                        {url && <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />}
-                    </div>
-                    </div>
+                     <FormFieldWrapper label="Imagen" htmlFor="image-file">
+                        <div className="grid gap-2">
+                            <Input id="image-file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
+                            <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste}/>
+                            {url && <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />}
+                        </div>
+                    </FormFieldWrapper>
                 )}
                 {type === "todo" && (
-                    <div className="grid grid-cols-4 items-start gap-4">
-                    <Label className="text-right pt-2">Tareas</Label>
-                    <div className="col-span-3 space-y-3">
-                        <div className="flex gap-2">
-                            <Input placeholder="Nueva tarea..." value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddTask()} />
-                            <Button type="button" size="icon" onClick={handleAddTask}><Plus className="h-4 w-4" /></Button>
+                    <FormFieldWrapper label="Tareas" htmlFor="new-task-input">
+                        <div className="space-y-3">
+                            <div className="flex gap-2">
+                                <Input id="new-task-input" placeholder="Nueva tarea..." value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddTask()} />
+                                <Button type="button" size="icon" onClick={handleAddTask}><Plus className="h-4 w-4" /></Button>
+                            </div>
+                            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                                {tasks.map(task => (
+                                    <div key={task.id} className="flex items-center gap-2 group">
+                                        <Checkbox id={`task-${task.id}`} checked={task.completed} onCheckedChange={() => handleToggleTask(task.id)} />
+                                        <label htmlFor={`task-${task.id}`} className={cn("flex-1 text-sm", task.completed && "line-through text-muted-foreground")}>{task.text}</label>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteTask(task.id)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                            {tasks.map(task => (
-                                <div key={task.id} className="flex items-center gap-2 group">
-                                    <Checkbox id={`task-${task.id}`} checked={task.completed} onCheckedChange={() => handleToggleTask(task.id)} />
-                                    <label htmlFor={`task-${task.id}`} className={cn("flex-1 text-sm", task.completed && "line-through text-muted-foreground")}>{task.text}</label>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteTask(task.id)}>
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    </div>
+                    </FormFieldWrapper>
                 )}
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="tags" className="text-right">Etiquetas</Label>
-                    <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="col-span-3" placeholder="Etiquetas separadas por comas" />
-                </div>
+                 <FormFieldWrapper label="Etiquetas" htmlFor="tags">
+                    <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Etiquetas separadas por comas" />
+                </FormFieldWrapper>
             </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-appearance">
@@ -232,50 +236,47 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </div>
             </AccordionTrigger>
             <AccordionContent className="pt-4 space-y-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="icon-name" className="text-right">Icono</Label>
-                    <Input id="icon-name" value={icon || ''} onChange={(e) => setIcon(e.target.value)} className="col-span-3" placeholder="Ej: folder, home, lightbulb" />
-                </div>
-                <div className="grid grid-cols-4 items-start gap-4">
-                    <Label className="text-right pt-2">Aspecto</Label>
-                    <div className="col-span-3">
-                        <RadioGroup value={aspect} onValueChange={(v) => setAspect(v as CardAspect)} className="flex flex-col sm:flex-row gap-4">
-                            <div>
-                                <RadioGroupItem value="default" id="aspect-default" className="sr-only"/>
-                                <Label htmlFor="aspect-default">
-                                    <Card className={cn("cursor-pointer", aspect === 'default' && "border-primary ring-2 ring-primary")}>
-                                        <CardContent className="p-3">
-                                            <p className="font-semibold text-sm">Default</p>
-                                            <p className="text-xs text-muted-foreground">Estilo estándar.</p>
-                                        </CardContent>
-                                    </Card>
-                                </Label>
-                            </div>
-                             <div>
-                                <RadioGroupItem value="highlighted" id="aspect-highlighted" className="sr-only"/>
-                                <Label htmlFor="aspect-highlighted">
-                                     <Card className={cn("cursor-pointer border-primary/50", aspect === 'highlighted' && "border-primary ring-2 ring-primary")}>
-                                        <CardContent className="p-3">
-                                            <p className="font-semibold text-sm text-primary">Destacado</p>
-                                            <p className="text-xs text-muted-foreground">Resaltar elemento.</p>
-                                        </CardContent>
-                                    </Card>
-                                </Label>
-                            </div>
-                            <div>
-                                <RadioGroupItem value="minimalist" id="aspect-minimalist" className="sr-only"/>
-                                <Label htmlFor="aspect-minimalist">
-                                     <Card className={cn("cursor-pointer bg-transparent shadow-none border-dashed", aspect === 'minimalist' && "border-primary ring-2 ring-primary")}>
-                                        <CardContent className="p-3">
-                                            <p className="font-semibold text-sm">Minimalista</p>
-                                            <p className="text-xs text-muted-foreground">Diseño simple.</p>
-                                        </CardContent>
-                                    </Card>
-                                </Label>
-                            </div>
-                        </RadioGroup>
-                    </div>
-                </div>
+                <FormFieldWrapper label="Icono" htmlFor="icon-name">
+                    <Input id="icon-name" value={icon || ''} onChange={(e) => setIcon(e.target.value)} placeholder="Ej: folder, home, lightbulb" />
+                </FormFieldWrapper>
+
+                <FormFieldWrapper label="Aspecto" htmlFor="aspect-default">
+                    <RadioGroup value={aspect} onValueChange={(v) => setAspect(v as CardAspect)} className="flex flex-col sm:flex-row gap-4">
+                        <div>
+                            <RadioGroupItem value="default" id="aspect-default" className="sr-only"/>
+                            <Label htmlFor="aspect-default">
+                                <Card className={cn("cursor-pointer", aspect === 'default' && "border-primary ring-2 ring-primary")}>
+                                    <CardContent className="p-3">
+                                        <p className="font-semibold text-sm">Default</p>
+                                        <p className="text-xs text-muted-foreground">Estilo estándar.</p>
+                                    </CardContent>
+                                </Card>
+                            </Label>
+                        </div>
+                         <div>
+                            <RadioGroupItem value="highlighted" id="aspect-highlighted" className="sr-only"/>
+                            <Label htmlFor="aspect-highlighted">
+                                 <Card className={cn("cursor-pointer border-primary/50", aspect === 'highlighted' && "border-primary ring-2 ring-primary")}>
+                                    <CardContent className="p-3">
+                                        <p className="font-semibold text-sm text-primary">Destacado</p>
+                                        <p className="text-xs text-muted-foreground">Resaltar elemento.</p>
+                                    </CardContent>
+                                </Card>
+                            </Label>
+                        </div>
+                        <div>
+                            <RadioGroupItem value="minimalist" id="aspect-minimalist" className="sr-only"/>
+                            <Label htmlFor="aspect-minimalist">
+                                 <Card className={cn("cursor-pointer bg-transparent shadow-none border-dashed", aspect === 'minimalist' && "border-primary ring-2 ring-primary")}>
+                                    <CardContent className="p-3">
+                                        <p className="font-semibold text-sm">Minimalista</p>
+                                        <p className="text-xs text-muted-foreground">Diseño simple.</p>
+                                    </CardContent>
+                                </Card>
+                            </Label>
+                        </div>
+                    </RadioGroup>
+                </FormFieldWrapper>
             </AccordionContent>
         </AccordionItem>
     </Accordion>

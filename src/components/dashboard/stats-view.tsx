@@ -90,8 +90,8 @@ export function StatsView() {
   }, [appData.stats]);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-12">
-        <Card className="lg:col-span-8 xl:col-span-9">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+        <Card className="lg:col-span-1">
             <CardHeader>
                 <CardTitle>Actividad Mensual</CardTitle>
                 <CardDescription>Tu interacción con la app en los últimos 30 días.</CardDescription>
@@ -112,62 +112,64 @@ export function StatsView() {
                 </div>
             </CardContent>
         </Card>
-        <Card className="lg:col-span-4 xl:col-span-3">
+        <Card className="lg:col-span-1">
              <RecentItems />
         </Card>
-        <Card className="lg:col-span-5">
-            <CardHeader>
-                <CardTitle>Tipos de Contenido</CardTitle>
-                <CardDescription>Distribución de tu contenido guardado.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                 <div className="h-[300px] w-full">
-                    <ChartContainer config={contentTypeChartConfig} className="w-full h-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                                <Pie data={contentTypeData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={100} labelLine={false} label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                                  const radius = innerRadius + (outerRadius - innerRadius) * 1.2;
-                                  const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
-                                  const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
-                                  return (
-                                    <text x={x} y={y} fill="hsl(var(--foreground))" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-xs">
-                                      {`${(percent * 100).toFixed(0)}%`}
-                                    </text>
-                                  );
-                                }}>
-                                    {contentTypeData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={contentTypeChartConfig[entry.name as keyof typeof contentTypeChartConfig]?.color} stroke="hsl(var(--background))" />
-                                    ))}
-                                </Pie>
-                                <ChartLegend content={<ChartLegendContent />} />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </ChartContainer>
-                </div>
-            </CardContent>
-        </Card>
-        <Card className="lg:col-span-7">
-            <CardHeader>
-                <CardTitle>Uso de Grupos</CardTitle>
-                <CardDescription>Número de veces que se ha accedido a cada grupo.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="h-[300px] w-full">
-                    <ChartContainer config={groupUsageChartConfig} className="w-full h-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={groupUsageData} layout="vertical" margin={{ left: 20, right: 30, top: 10, bottom: 10 }}>
-                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border) / 0.5)" />
-                            <XAxis type="number" dataKey="total" tickLine={false} axisLine={false} />
-                            <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} />
-                            <ChartTooltip cursor={{ fill: 'hsl(var(--accent))' }} content={<ChartTooltipContent />} />
-                            <Bar dataKey="total" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={16} />
-                        </BarChart>
-                        </ResponsiveContainer>
-                    </ChartContainer>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="lg:col-span-1">
+                <CardHeader>
+                    <CardTitle>Tipos de Contenido</CardTitle>
+                    <CardDescription>Distribución de tu contenido guardado.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="h-[300px] w-full">
+                        <ChartContainer config={contentTypeChartConfig} className="w-full h-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                                    <Pie data={contentTypeData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={100} labelLine={false} label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                                    const radius = innerRadius + (outerRadius - innerRadius) * 1.2;
+                                    const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
+                                    const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
+                                    return (
+                                        <text x={x} y={y} fill="hsl(var(--foreground))" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-xs">
+                                        {`${(percent * 100).toFixed(0)}%`}
+                                        </text>
+                                    );
+                                    }}>
+                                        {contentTypeData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={contentTypeChartConfig[entry.name as keyof typeof contentTypeChartConfig]?.color} stroke="hsl(var(--background))" />
+                                        ))}
+                                    </Pie>
+                                    <ChartLegend content={<ChartLegendContent />} />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="lg:col-span-1">
+                <CardHeader>
+                    <CardTitle>Uso de Grupos</CardTitle>
+                    <CardDescription>Número de veces que se ha accedido a cada grupo.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="h-[300px] w-full">
+                        <ChartContainer config={groupUsageChartConfig} className="w-full h-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={groupUsageData} layout="vertical" margin={{ left: 20, right: 30, top: 10, bottom: 10 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border) / 0.5)" />
+                                <XAxis type="number" dataKey="total" tickLine={false} axisLine={false} />
+                                <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} />
+                                <ChartTooltip cursor={{ fill: 'hsl(var(--accent))' }} content={<ChartTooltipContent />} />
+                                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={16} />
+                            </BarChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     </div>
   );
 }
