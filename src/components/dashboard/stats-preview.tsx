@@ -1,12 +1,9 @@
 "use client";
 
-import { Pie, PieChart, Cell, ResponsiveContainer, LineChart, Line, YAxis, Tooltip as RechartsTooltip, XAxis, CartesianGrid } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, YAxis, Tooltip as RechartsTooltip, XAxis, CartesianGrid } from "recharts";
 import {
-  ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent
 } from "@/components/ui/chart";
 import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { useMemo } from "react";
@@ -26,7 +23,8 @@ export function StatsPreview() {
     const typeTranslations: {[key: string]: string} = {
         'note': 'Notas',
         'link': 'Enlaces',
-        'image': 'Imágenes'
+        'image': 'Imágenes',
+        'todo': 'Tareas'
     }
     return Object.entries(counts).map(([name, value]) => ({ name: typeTranslations[name] || name, value }));
   }, [appData.items]);
@@ -56,7 +54,7 @@ export function StatsPreview() {
     <div className="space-y-6">
       <div>
         <h4 className="text-sm font-medium text-muted-foreground mb-2">Actividad Semanal</h4>
-        <ChartContainer config={{}} className="h-[120px] w-full">
+        <div className="h-[120px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={weeklyActivityData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
@@ -66,11 +64,11 @@ export function StatsPreview() {
                     <Line type="monotone" dataKey="count" name="Interacciones" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                 </LineChart>
             </ResponsiveContainer>
-        </ChartContainer>
+        </div>
       </div>
       <div>
         <h4 className="text-sm font-medium text-muted-foreground mb-2">Tipos de Contenido</h4>
-        <ChartContainer config={{}} className="h-[120px] w-full">
+        <div className="h-[120px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <RechartsTooltip content={<ChartTooltipContent nameKey="name" />} />
@@ -81,7 +79,7 @@ export function StatsPreview() {
                     </Pie>
                 </PieChart>
             </ResponsiveContainer>
-        </ChartContainer>
+        </div>
       </div>
     </div>
   );

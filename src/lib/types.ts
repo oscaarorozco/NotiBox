@@ -1,4 +1,4 @@
-export type ContentItemType = 'note' | 'link' | 'image';
+export type ContentItemType = 'note' | 'link' | 'image' | 'todo';
 
 export interface BaseContentItem {
   id: string;
@@ -26,7 +26,12 @@ export interface ImageItem extends BaseContentItem {
   url: string; // base64 data URL
 }
 
-export type ContentItem = NoteItem | LinkItem | ImageItem;
+export interface TodoItem extends BaseContentItem {
+    type: 'todo';
+    tasks: { id: string; text: string; completed: boolean }[];
+}
+
+export type ContentItem = NoteItem | LinkItem | ImageItem | TodoItem;
 
 export interface Group {
   id: string;

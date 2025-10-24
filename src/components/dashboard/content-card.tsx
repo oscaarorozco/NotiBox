@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Link as LinkIcon, FileText, ImageIcon, Edit, Trash2, Eye } from "lucide-react";
+import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { ContentItem } from "@/lib/types";
+import type { ContentItem, TodoItem } from "@/lib/types";
 import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { AddContentDialog } from "./add-content-dialog";
+import { Progress } from "../ui/progress";
 
 type ContentCardProps = {
   item: ContentItem;
@@ -22,12 +23,13 @@ type ContentCardProps = {
 };
 
 export function ContentCard({ item, onCardClick }: ContentCardProps) {
-  const { deleteItem } = useContentStore();
+  const { deleteItem, updateItem } = useContentStore();
 
   const typeTranslations: {[key: string]: string} = {
     'note': 'Nota',
     'link': 'Enlace',
-    'image': 'Imagen'
+    'image': 'Imagen',
+    'todo': 'Tareas'
   }
 
   const renderIcon = () => {
@@ -36,9 +38,19 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
       case "link": return <LinkIcon className={className} />;
       case "note": return <FileText className={className} />;
       case "image": return <ImageIcon className={className} />;
+      case "todo": return <ListTodo className={className} />;
       default: return null;
     }
   };
+
+  const handleToggleTask = (e: React.MouseEvent, taskId: string) => {
+    e.stopPropagation();
+    if (item.type !== 'todo') return;
+    const updatedTasks = item.tasks.map(task => 
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    );
+    updateItem({ ...item, tasks: updatedTasks });
+  }
 
   const renderContent = () => {
     switch (item.type) {
@@ -65,6 +77,33 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
             {item.url}
           </p>
         );
+      case "todo":
+        const completedTasks = item.tasks.filter(t => t.completed).length;
+        const totalTasks = item.tasks.length;
+        const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+        return (
+            <div className="space-y-3">
+                <div className="space-y-2">
+                    {item.tasks.slice(0, 3).map(task => (
+                        <div key={task.id} className="flex items-center gap-2" onClick={(e) => handleToggleTask(e, task.id)}>
+                            {task.completed ? <CheckCircle className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
+                            <span className={`text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                {task.text}
+                            </span>
+                        </div>
+                    ))}
+                    {item.tasks.length > 3 && (
+                        <p className="text-xs text-muted-foreground">+ {item.tasks.length - 3} más...</p>
+                    )}
+                </div>
+                {totalTasks > 0 && (
+                  <div>
+                    <Progress value={progress} className="h-2" />
+                    <p className="text-xs text-muted-foreground text-right mt-1">{completedTasks} de {totalTasks} completadas</p>
+                  </div>
+                )}
+            </div>
+        )
       default:
         return null;
     }
@@ -90,7 +129,7 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="p-4 pt-0 cursor-pointer">
+      <CardContent className="p-4 pt-0 cursor-pointer flex-1">
         {renderContent()}
       </CardContent>
 

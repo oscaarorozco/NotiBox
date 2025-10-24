@@ -40,7 +40,8 @@ export function StatsView() {
     const typeTranslations: {[key: string]: string} = {
         'note': 'Notas',
         'link': 'Enlaces',
-        'image': 'Imágenes'
+        'image': 'Imágenes',
+        'todo': 'Tareas'
     }
     return Object.entries(counts).map(([name, value]) => ({ name: typeTranslations[name] || name, value }));
   }, [appData.items]);
@@ -74,7 +75,7 @@ export function StatsView() {
                 <CardDescription>Tu interacción con la app en los últimos 30 días.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <ChartContainer config={{}} className="h-[350px] w-full">
+                 <div className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={weeklyActivityData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
@@ -84,7 +85,7 @@ export function StatsView() {
                             <Line type="monotone" dataKey="count" name="Interacciones" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8, fill: 'hsl(var(--primary))' }} dot={{ r: 4, fill: 'hsl(var(--primary))' }} />
                         </LineChart>
                     </ResponsiveContainer>
-                </ChartContainer>
+                </div>
             </CardContent>
         </Card>
         <Card className="lg:col-span-4">
@@ -93,7 +94,7 @@ export function StatsView() {
                 <CardDescription>Distribución de tu contenido guardado.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <ChartContainer config={{}} className="h-[350px] w-full">
+                 <div className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <RechartsTooltip content={<ChartTooltipContent nameKey="name" />} />
@@ -114,7 +115,7 @@ export function StatsView() {
                             <ChartLegend content={<ChartLegendContent />} />
                         </PieChart>
                     </ResponsiveContainer>
-                </ChartContainer>
+                </div>
             </CardContent>
         </Card>
         <Card className="lg:col-span-full">
@@ -123,7 +124,7 @@ export function StatsView() {
                 <CardDescription>Número de veces que se ha accedido a cada grupo.</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={{}} className="h-[350px] w-full">
+                <div className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={groupUsageData} layout="vertical" margin={{ left: 20, right: 30, top: 10, bottom: 10 }}>
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border) / 0.5)" />
@@ -133,7 +134,7 @@ export function StatsView() {
                         <Bar dataKey="total" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>
                     </ResponsiveContainer>
-                </ChartContainer>
+                </div>
             </CardContent>
         </Card>
     </div>

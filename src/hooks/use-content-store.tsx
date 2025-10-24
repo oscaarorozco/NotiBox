@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import type { AppData, Group, ContentItem, StatLog } from "@/lib/types";
+import type { AppData, Group, ContentItem, StatLog, TodoItem } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
 const LOCAL_STORAGE_KEY = "content-hub-data";
@@ -49,7 +49,7 @@ export const ContentStoreProvider = ({
 }) => {
   const [appData, setAppData] = useState<AppData>(defaultAppData);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeGroupId, setActiveGroupId] = useState<string | null>("1");
+  const [activeGroupId, setActiveGroupIdState] = useState<string | null>("1");
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
@@ -59,14 +59,14 @@ export const ContentStoreProvider = ({
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         setAppData(parsedData);
-        if (parsedData.groups.length > 0) {
-          setActiveGroupId(parsedData.groups[0].id);
-        } else {
-          setActiveGroupId(null);
+        if (parsedData.groups.length > 0 && !parsedData.groups.find((g: Group) => g.id === activeGroupId)) {
+          setActiveGroupIdState(parsedData.groups[0].id);
+        } else if (parsedData.groups.length === 0) {
+           setActiveGroupIdState(null);
         }
       } else {
         setAppData(defaultAppData);
-        setActiveGroupId(defaultAppData.groups[0]?.id || null);
+        setActiveGroupIdState(defaultAppData.groups[0]?.id || null);
       }
     } catch (error) {
       console.error("No se pudieron cargar los datos de localStorage", error);
@@ -90,63 +90,6 @@ export const ContentStoreProvider = ({
       }
     }
   }, [appData, isLoading, toast]);
-
-  const addGroup = useCallback((name: string) => {
-    const newGroup: Group = {
-      id: Date.now().toString(),
-      name,
-      createdAt: new Date().toISOString(),
-      accessCount: 0,
-    };
-    setAppData((prev) => ({ ...prev, groups: [...prev.groups, newGroup] }));
-    setActiveGroupId(newGroup.id);
-    toast({ title: "Grupo Creado", description: `El grupo "${name}" ha sido creado.` });
-  }, [toast]);
-
-  const updateGroup = useCallback((id: string, name: string) => {
-    setAppData((prev) => ({
-      ...prev,
-      groups: prev.groups.map((g) => (g.id === id ? { ...g, name } : g)),
-    }));
-    toast({ title: "Grupo Actualizado", description: `El grupo ha sido renombrado a "${name}".` });
-  }, [toast]);
-
-  const deleteGroup = useCallback((id: string) => {
-    setAppData((prev) => {
-      const newGroups = prev.groups.filter((g) => g.id !== id);
-      const newItems = prev.items.filter((i) => i.groupId !== id);
-      if (activeGroupId === id) {
-        setActiveGroupId(newGroups[0]?.id || null);
-      }
-      return { ...prev, groups: newGroups, items: newItems };
-    });
-    toast({ title: "Grupo Eliminado", description: "El grupo y su contenido han sido eliminados." });
-  }, [activeGroupId, toast]);
-
-  const addItem = useCallback((itemData: Omit<ContentItem, "id" | "createdAt" | "accessCount" | "lastAccessed">) => {
-    const newItem: ContentItem = {
-      ...itemData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      accessCount: 0,
-      lastAccessed: null,
-    } as ContentItem;
-    setAppData((prev) => ({ ...prev, items: [...prev.items, newItem] }));
-    toast({ title: "Elemento Agregado", description: `"${itemData.title}" ha sido agregado.` });
-  }, [toast]);
-  
-  const updateItem = useCallback((updatedItem: ContentItem) => {
-    setAppData((prev) => ({
-      ...prev,
-      items: prev.items.map((i) => (i.id === updatedItem.id ? updatedItem : i)),
-    }));
-    toast({ title: "Elemento Actualizado", description: `"${updatedItem.title}" ha sido actualizado.` });
-  }, [toast]);
-  
-  const deleteItem = useCallback((id: string) => {
-    setAppData((prev) => ({ ...prev, items: prev.items.filter((i) => i.id !== id) }));
-    toast({ title: "Elemento Eliminado", description: "El elemento ha sido eliminado." });
-  }, [toast]);
 
   const logAccess = useCallback((targetId: string, targetType: "group" | "item") => {
     const newLog: StatLog = {
@@ -174,6 +117,74 @@ export const ContentStoreProvider = ({
       };
     });
   }, []);
+
+  const setActiveGroupId = useCallback((id: string | null) => {
+      setActiveGroupIdState(id);
+      if (id) logAccess(id, 'group');
+  }, [logAccess]);
+
+  const addGroup = useCallback((name: string) => {
+    const newGroup: Group = {
+      id: Date.now().toString(),
+      name,
+      createdAt: new Date().toISOString(),
+      accessCount: 0,
+    };
+    setAppData((prev) => ({ ...prev, groups: [...prev.groups, newGroup] }));
+    setActiveGroupId(newGroup.id);
+    toast({ title: "Grupo Creado", description: `El grupo "${name}" ha sido creado.` });
+  }, [toast, setActiveGroupId]);
+
+  const updateGroup = useCallback((id: string, name: string) => {
+    setAppData((prev) => ({
+      ...prev,
+      groups: prev.groups.map((g) => (g.id === id ? { ...g, name } : g)),
+    }));
+    toast({ title: "Grupo Actualizado", description: `El grupo ha sido renombrado a "${name}".` });
+  }, [toast]);
+
+  const deleteGroup = useCallback((id: string) => {
+    setAppData((prev) => {
+      const newGroups = prev.groups.filter((g) => g.id !== id);
+      const newItems = prev.items.filter((i) => i.groupId !== id);
+      if (activeGroupId === id) {
+        setActiveGroupId(newGroups[0]?.id || null);
+      }
+      return { ...prev, groups: newGroups, items: newItems };
+    });
+    toast({ title: "Grupo Eliminado", description: "El grupo y su contenido han sido eliminados." });
+  }, [activeGroupId, toast, setActiveGroupId]);
+
+  const addItem = useCallback((itemData: Omit<ContentItem, "id" | "createdAt" | "accessCount" | "lastAccessed">) => {
+    const newItem: ContentItem = {
+      ...itemData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      accessCount: 0,
+      lastAccessed: null,
+    } as ContentItem;
+    
+    if (newItem.type === 'todo') {
+        (newItem as TodoItem).tasks = (newItem as TodoItem).tasks || [];
+    }
+
+    setAppData((prev) => ({ ...prev, items: [...prev.items, newItem] }));
+    toast({ title: "Elemento Agregado", description: `"${itemData.title}" ha sido agregado.` });
+  }, [toast]);
+  
+  const updateItem = useCallback((updatedItem: ContentItem) => {
+    setAppData((prev) => ({
+      ...prev,
+      items: prev.items.map((i) => (i.id === updatedItem.id ? updatedItem : i)),
+    }));
+    toast({ title: "Elemento Actualizado", description: `"${updatedItem.title}" ha sido actualizado.` });
+  }, [toast]);
+  
+  const deleteItem = useCallback((id: string) => {
+    setAppData((prev) => ({ ...prev, items: prev.items.filter((i) => i.id !== id) }));
+    toast({ title: "Elemento Eliminado", description: "El elemento ha sido eliminado." });
+  }, [toast]);
+
 
   const exportData = useCallback(() => {
     try {
@@ -203,16 +214,13 @@ export const ContentStoreProvider = ({
     } else {
       toast({ title: "Importación Fallida", description: "El archivo importado no es válido.", variant: "destructive" });
     }
-  }, [toast]);
+  }, [toast, setActiveGroupId]);
 
   const value = {
     appData,
     isLoading,
     activeGroupId,
-    setActiveGroupId: (id: string | null) => {
-      setActiveGroupId(id);
-      if (id) logAccess(id, 'group');
-    },
+    setActiveGroupId,
     searchQuery,
     setSearchQuery,
     addGroup,
