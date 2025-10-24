@@ -23,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ContentItem, ImageItem } from "@/lib/types";
-import { useContentStore } from "@/hooks/use-content-store.tsx";
+import { useContentStore } from "@/hooks/use-content-store";
 import { AddContentDialog } from "./add-content-dialog";
 import { Progress } from "../ui/progress";
 import {

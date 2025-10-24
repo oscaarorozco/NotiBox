@@ -18,7 +18,7 @@ import { AddContentDialog } from "./add-content-dialog";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { Separator } from "../ui/separator";
 import { Button } from "@/components/ui/button";
-import { useContentStore } from "@/hooks/use-content-store.tsx";
+import { useContentStore } from "@/hooks/use-content-store";
 
 
 export function DashboardSidebarContent() {

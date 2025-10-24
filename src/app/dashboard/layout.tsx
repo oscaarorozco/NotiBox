@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { ContentStoreProvider } from "@/hooks/use-content-store.tsx";
+import { ContentStoreProvider } from "@/hooks/use-content-store";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebarContent } from "@/components/dashboard/dashboard-sidebar-content";

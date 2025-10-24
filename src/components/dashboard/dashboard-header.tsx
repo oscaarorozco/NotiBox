@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Book } from "lucide-react";
 import Link from "next/link";
-import { useContentStore } from "@/hooks/use-content-store.tsx";
+import { useContentStore } from "@/hooks/use-content-store";
 
 export function DashboardHeader() {
     const { isMobile } = useSidebar();

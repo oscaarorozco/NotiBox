@@ -1,6 +1,6 @@
 "use client";
 
-import { useContentStore } from "@/hooks/use-content-store.tsx";
+import { useContentStore } from "@/hooks/use-content-store";
 import { Input } from "@/components/ui/input";
 import { Search, ListFilter, FileText, Link, ImageIcon, ListTodo } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";

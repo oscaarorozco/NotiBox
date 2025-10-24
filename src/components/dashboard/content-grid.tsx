@@ -1,6 +1,6 @@
 "use client";
 
-import { useContentStore } from "@/hooks/use-content-store.tsx";
+import { useContentStore } from "@/hooks/use-content-store";
 import { ContentCard } from "./content-card";
 import { PlusCircle } from "lucide-react";
 import { AddContentDialog } from "./add-content-dialog";

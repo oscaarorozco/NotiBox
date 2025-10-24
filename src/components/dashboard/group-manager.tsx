@@ -19,7 +19,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { useContentStore } from "@/hooks/use-content-store.tsx";
+import { useContentStore } from "@/hooks/use-content-store";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 
@@ -58,7 +58,7 @@ export function GroupManager() {
             variant="ghost"
             role="combobox"
             aria-expanded={isPopoverOpen}
-            className="w-[200px] justify-between"
+            className="w-full justify-between"
           >
             <Folder className="mr-2 h-4 w-4" />
             <span className="truncate">
@@ -117,7 +117,10 @@ export function GroupManager() {
              </CommandList>
              <DropdownMenuSeparator />
               <CommandGroup>
-                <CommandItem onSelect={() => setIsAddDialogOpen(true)}>
+                <CommandItem onSelect={() => {
+                  setIsPopoverOpen(false);
+                  setIsAddDialogOpen(true);
+                }}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Crear nuevo grupo
                 </CommandItem>
