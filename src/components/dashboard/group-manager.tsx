@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MoreHorizontal, Edit, Trash, ChevronsUpDown, Check, PlusCircle, Folder } from "lucide-react";
+import { Edit, Trash, PlusCircle, Folder } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +31,6 @@ import { SidebarMenuButton } from "../ui/sidebar";
 export function GroupManager() {
   const { appData, activeGroupId, setActiveGroupId, addGroup, updateGroup, deleteGroup } = useContentStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   
   const [newGroupName, setNewGroupName] = useState("");
   const [groupToRename, setGroupToRename] = useState<{id: string, name: string} | null>(null);
@@ -47,10 +46,9 @@ export function GroupManager() {
   };
 
   const handleUpdateGroup = () => {
-    if (groupToRename && groupToRename.name.trim()) {
-      updateGroup(groupToRename.id, groupToRename.name.trim());
+    if (groupToRename && groupToRename.name.trim() && activeGroup) {
+      updateGroup(activeGroup.id, groupToRename.name.trim());
       setGroupToRename(null);
-      setIsRenameDialogOpen(false);
     }
   };
 
@@ -63,7 +61,7 @@ export function GroupManager() {
                 <span>Grupos</span>
             </SidebarMenuButton>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" side="right" align="start" sideOffset={8}>
+        <DropdownMenuContent className="w-56" side="bottom" align="start" sideOffset={5}>
             <DropdownMenuLabel>Seleccionar Grupo</DropdownMenuLabel>
             <DropdownMenuRadioGroup value={activeGroupId || ""} onValueChange={setActiveGroupId}>
                 {appData.groups.map(group => (
@@ -101,7 +99,10 @@ export function GroupManager() {
             </DropdownMenuSub>
 
              <DropdownMenuItem 
-                onSelect={() => activeGroup && deleteGroup(activeGroup.id)} 
+                onSelect={(e) => {
+                    e.preventDefault();
+                    if (activeGroup) deleteGroup(activeGroup.id);
+                }} 
                 className="text-destructive focus:text-destructive"
                 disabled={!activeGroup || activeGroup.id === "1"}
             >

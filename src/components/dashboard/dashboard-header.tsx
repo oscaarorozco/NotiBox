@@ -30,6 +30,7 @@ export function DashboardHeader() {
                 <ThemeToggle />
                 {activeGroupId && <SidebarTrigger asChild>
                     <Button variant="ghost" size="icon" className="md:hidden">
+                        <PanelLeft className="h-5 w-5" />
                         <span className="sr-only">Toggle Menu</span>
                     </Button>
                 </SidebarTrigger>}
@@ -37,3 +38,6 @@ export function DashboardHeader() {
         </header>
     );
 }
+
+// Add this import, as PanelLeft is used in the button.
+import { PanelLeft } from "lucide-react";

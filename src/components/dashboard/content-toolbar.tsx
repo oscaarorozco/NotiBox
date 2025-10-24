@@ -62,15 +62,16 @@ export function ContentToolbar() {
                  <div className="flex items-center gap-2">
                     <AddContentDialog 
                         trigger={
-                            <Button variant="outline" size="icon" disabled={!activeGroupId}>
-                                <PlusCircle className="h-4 w-4" />
+                            <Button className="w-full sm:w-auto" disabled={!activeGroupId}>
+                                <PlusCircle className="mr-0 sm:mr-2 h-4 w-4" />
+                                <span className="hidden sm:inline">Agregar</span>
                             </Button>
                         }
                         defaultGroupId={activeGroupId!}
                     />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-full sm:w-auto" disabled={!activeGroupId}>
+                            <Button variant="outline" className="flex-1 sm:flex-initial" disabled={!activeGroupId}>
                                 <ListFilter className="mr-2 h-4 w-4"/>
                                 Filtrar
                             </Button>
@@ -86,7 +87,7 @@ export function ContentToolbar() {
                     </DropdownMenu>
 
                     <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as SortOrder)} disabled={!activeGroupId}>
-                        <SelectTrigger className="w-full sm:w-[160px]">
+                        <SelectTrigger className="w-full sm:w-[160px] flex-1 sm:flex-initial">
                             <SelectValue placeholder="Ordenar por..." />
                         </SelectTrigger>
                         <SelectContent>
