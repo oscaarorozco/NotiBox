@@ -1,6 +1,9 @@
 "use client";
+import React from "react";
 import { ContentStoreProvider } from "@/hooks/use-content-store.tsx";
-import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
+import { DashboardSidebarContent } from "@/components/dashboard/dashboard-sidebar-content";
 
 export default function DashboardLayout({
   children,
@@ -9,12 +12,19 @@ export default function DashboardLayout({
 }) {
   return (
     <ContentStoreProvider>
-      <div className="flex min-h-screen w-full flex-col bg-background">
-        <DashboardSidebar />
-        <main className="flex flex-col sm:gap-4 sm:py-4 sm:pl-16 md:pl-20 lg:pl-24">
-            {children}
-        </main>
-      </div>
+      <SidebarProvider>
+        <Sidebar>
+            <DashboardSidebarContent />
+        </Sidebar>
+        <div className="flex w-full flex-col bg-background">
+          <DashboardHeader />
+          <SidebarInset>
+            <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+              {children}
+            </main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
     </ContentStoreProvider>
   );
 }

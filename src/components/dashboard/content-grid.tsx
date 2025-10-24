@@ -7,27 +7,18 @@ import { AddContentDialog } from "./add-content-dialog";
 import { Button } from "../ui/button";
 
 export function ContentGrid() {
-  const { appData, activeGroupId, searchQuery } = useContentStore();
+  const { filteredItems, activeGroupId, searchQuery } = useContentStore();
 
-  const filteredItems = appData.items.filter((item) => {
-    const inGroup = item.groupId === activeGroupId;
-    if (!inGroup) return false;
-
-    const query = searchQuery.toLowerCase();
-    if (!query) return true;
-
-    const inTitle = item.title.toLowerCase().includes(query);
-    const inTags = item.tags.some((tag) => tag.toLowerCase().includes(query));
-    
-    let inContent = false;
-    if (item.type === 'note') {
-      inContent = item.content.toLowerCase().includes(query);
-    } else if (item.type === 'link') {
-      inContent = item.url.toLowerCase().includes(query);
-    }
-    
-    return inTitle || inTags || inContent;
-  });
+  if (!activeGroupId) {
+    return (
+        <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[50vh]">
+        <h3 className="text-xl font-semibold font-headline">No hay un grupo seleccionado</h3>
+        <p className="text-muted-foreground mt-2">
+            Crea un nuevo grupo o selecciona uno existente desde la barra lateral.
+        </p>
+        </div>
+    )
+  }
 
   if (filteredItems.length === 0) {
     return (
@@ -36,7 +27,7 @@ export function ContentGrid() {
         <p className="text-muted-foreground mt-2 max-w-sm">
           {searchQuery 
             ? `No se encontraron resultados para "${searchQuery}".`
-            : 'Haz clic en "Agregar Contenido" en la barra lateral para empezar a organizar tu vida digital.'}
+            : 'Haz clic en "Agregar Contenido" para empezar a organizar tu vida digital.'}
         </p>
         {!searchQuery && (
           <AddContentDialog trigger={
@@ -51,7 +42,7 @@ export function ContentGrid() {
   }
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
       {filteredItems.map((item) => (
         <ContentCard key={item.id} item={item} />
       ))}

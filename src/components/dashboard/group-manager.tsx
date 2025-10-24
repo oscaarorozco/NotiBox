@@ -1,17 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { MoreHorizontal, Edit, Trash, ChevronsUpDown, Check, PlusCircle, FolderSymlink } from "lucide-react";
+import { MoreHorizontal, Edit, Trash, ChevronsUpDown, Check, PlusCircle, Folder } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,11 +20,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useContentStore } from "@/hooks/use-content-store.tsx";
-import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 
 export function GroupManager() {
   const { appData, activeGroupId, setActiveGroupId, addGroup, updateGroup, deleteGroup } = useContentStore();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   
@@ -55,62 +52,79 @@ export function GroupManager() {
 
   return (
     <>
-      <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+        <PopoverTrigger asChild>
+           <Button
             variant="ghost"
-            className="w-full justify-between p-2 h-auto text-left"
+            role="combobox"
+            aria-expanded={isPopoverOpen}
+            className="w-[200px] justify-between"
           >
-            <div className="truncate">
-                <span className="text-xs text-muted-foreground">Grupo</span>
-                <p className="font-semibold">{activeGroup?.name || 'Seleccionar...'}</p>
-            </div>
-            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+            <Folder className="mr-2 h-4 w-4" />
+            <span className="truncate">
+                {activeGroup ? activeGroup.name : "Seleccionar grupo..."}
+            </span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64" align="start">
-          {appData.groups.map((group) => (
-            <DropdownMenuItem
-              key={group.id}
-              className="flex justify-between items-center"
-              onClick={() => {
-                setActiveGroupId(group.id);
-                setIsMenuOpen(false);
-              }}
-            >
-              <span className="truncate flex-1 pr-2">{group.name}</span>
-              {activeGroupId === group.id && <Check className="h-4 w-4" />}
-               {group.id !== "1" && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mr-2">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="right" sideOffset={8} onClick={e => e.stopPropagation()}>
-                    <DropdownMenuItem onClick={() => { setGroupToRename(group); setIsRenameDialogOpen(true); }}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Renombrar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => deleteGroup(group.id)}
-                      className="text-destructive focus:text-destructive"
+        </PopoverTrigger>
+        <PopoverContent className="w-[250px] p-0">
+           <Command>
+             <CommandInput placeholder="Buscar o crear..." />
+             <CommandList>
+                <CommandEmpty>No se encontraron grupos.</CommandEmpty>
+                <CommandGroup>
+                {appData.groups.map((group) => (
+                    <CommandItem
+                    key={group.id}
+                    value={group.name}
+                    className="flex justify-between items-center"
+                    onSelect={() => {
+                        setActiveGroupId(group.id);
+                        setIsPopoverOpen(false);
+                    }}
                     >
-                      <Trash className="mr-2 h-4 w-4" />
-                      Eliminar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setIsAddDialogOpen(true)}>
-             <PlusCircle className="mr-2 h-4 w-4" />
-             Crear nuevo grupo
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+                    <div className="flex items-center">
+                        <Check
+                            className={`mr-2 h-4 w-4 ${activeGroupId === group.id ? "opacity-100" : "opacity-0"}`}
+                        />
+                        <span className="truncate">{group.name}</span>
+                    </div>
+                     {group.id !== "1" && (
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mr-2">
+                            <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" sideOffset={8} onClick={e => e.stopPropagation()}>
+                            <DropdownMenuItem onClick={() => { setGroupToRename(group); setIsRenameDialogOpen(true); }}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Renombrar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                            onClick={() => deleteGroup(group.id)}
+                            className="text-destructive focus:text-destructive"
+                            >
+                            <Trash className="mr-2 h-4 w-4" />
+                            Eliminar
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                    </CommandItem>
+                ))}
+                </CommandGroup>
+             </CommandList>
+             <DropdownMenuSeparator />
+              <CommandGroup>
+                <CommandItem onSelect={() => setIsAddDialogOpen(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Crear nuevo grupo
+                </CommandItem>
+              </CommandGroup>
+           </Command>
+        </PopoverContent>
+      </Popover>
 
       {/* Add Group Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -125,6 +139,7 @@ export function GroupManager() {
               value={newGroupName} 
               onChange={(e) => setNewGroupName(e.target.value)} 
               onKeyDown={(e) => e.key === 'Enter' && handleAddGroup()}
+              autoFocus
             />
           </div>
           <DialogFooter>
@@ -147,6 +162,7 @@ export function GroupManager() {
               value={groupToRename?.name || ''} 
               onChange={(e) => setGroupToRename(g => g ? {...g, name: e.target.value} : null)} 
               onKeyDown={(e) => e.key === 'Enter' && handleUpdateGroup()}
+              autoFocus
             />
           </div>
           <DialogFooter>

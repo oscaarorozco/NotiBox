@@ -1,5 +1,7 @@
 export type ContentItemType = 'note' | 'link' | 'image' | 'todo';
 
+export type SortOrder = 'createdAt_desc' | 'createdAt_asc' | 'accessCount_desc' | 'title_asc';
+
 export interface BaseContentItem {
   id: string;
   groupId: string;

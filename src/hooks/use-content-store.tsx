@@ -6,8 +6,9 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
-import type { AppData, Group, ContentItem, StatLog, TodoItem } from "@/lib/types";
+import type { AppData, Group, ContentItem, StatLog, TodoItem, ContentItemType, SortOrder } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -35,6 +36,7 @@ interface ContentStore {
   setActiveGroupId: (id: string | null) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  filteredItems: ContentItem[];
   // Group actions
   addGroup: (name: string) => void;
   updateGroup: (id:string, name: string) => void;
@@ -50,6 +52,11 @@ interface ContentStore {
   // Data actions
   exportData: () => void;
   importData: (data: AppData) => void;
+  // Filtering & Sorting
+  filterByType: ContentItemType | null;
+  setFilterByType: (type: ContentItemType | null) => void;
+  sortOrder: SortOrder;
+  setSortOrder: (order: SortOrder) => void;
 }
 
 const ContentStoreContext = createContext<ContentStore | null>(null);
@@ -91,13 +98,24 @@ export const ContentStoreProvider = ({
 
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  
+  const [filterByType, setFilterByType] = useState<ContentItemType | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('createdAt_desc');
 
 
   useEffect(() => {
     try {
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedData) {
-        const parsedData = JSON.parse(storedData);
+        const parsedData = JSON.parse(storedData) as AppData;
+        // Simple migration for accessCount if it's missing
+        if (!parsedData.groups.every(g => 'accessCount' in g)) {
+            parsedData.groups = parsedData.groups.map(g => ({ ...g, accessCount: g.accessCount || 0 }));
+        }
+        if (!parsedData.items.every(i => 'accessCount' in i)) {
+            parsedData.items = parsedData.items.map(i => ({ ...i, accessCount: i.accessCount || 0, lastAccessed: i.lastAccessed || null }));
+        }
+
         setAppData(parsedData);
         if (parsedData.groups.length > 0 && !parsedData.groups.find((g: Group) => g.id === activeGroupId)) {
           setActiveGroupIdState(parsedData.groups[0].id);
@@ -144,9 +162,9 @@ export const ContentStoreProvider = ({
       let newItems = prev.items;
 
       if(targetType === 'group') {
-        newGroups = prev.groups.map(g => g.id === targetId ? {...g, accessCount: g.accessCount + 1} : g);
+        newGroups = prev.groups.map(g => g.id === targetId ? {...g, accessCount: (g.accessCount || 0) + 1} : g);
       } else {
-        newItems = prev.items.map(i => i.id === targetId ? {...i, accessCount: i.accessCount + 1, lastAccessed: new Date().toISOString() } : i);
+        newItems = prev.items.map(i => i.id === targetId ? {...i, accessCount: (i.accessCount || 0) + 1, lastAccessed: new Date().toISOString() } : i);
       }
 
       return {
@@ -189,13 +207,13 @@ export const ContentStoreProvider = ({
       const newGroups = prev.groups.filter((g) => g.id !== groupToDelete);
       const newItems = prev.items.filter((i) => i.groupId !== groupToDelete);
       if (activeGroupId === groupToDelete) {
-        setActiveGroupId(newGroups[0]?.id || null);
+        setActiveGroupIdState(newGroups[0]?.id || null);
       }
       return { ...prev, groups: newGroups, items: newItems };
     });
     toast({ title: "Grupo Eliminado", description: "El grupo y su contenido han sido eliminados." });
     setGroupToDelete(null);
-  }, [activeGroupId, toast, setActiveGroupId, groupToDelete]);
+  }, [activeGroupId, toast, groupToDelete]);
 
   const deleteGroup = useCallback((id: string) => {
     setGroupToDelete(id);
@@ -294,6 +312,40 @@ export const ContentStoreProvider = ({
     }
   }, [toast, setActiveGroupId]);
 
+  const filteredItems = useMemo(() => {
+     let items = appData.items.filter((item) => item.groupId === activeGroupId);
+
+     if(filterByType) {
+         items = items.filter(item => item.type === filterByType);
+     }
+     
+     if(searchQuery) {
+        const query = searchQuery.toLowerCase();
+        items = items.filter(item => {
+            const inTitle = item.title.toLowerCase().includes(query);
+            const inTags = item.tags.some((tag) => tag.toLowerCase().includes(query));
+            let inContent = false;
+            if (item.type === 'note') {
+                inContent = item.content.toLowerCase().includes(query);
+            } else if (item.type === 'link') {
+                inContent = item.url.toLowerCase().includes(query);
+            }
+            return inTitle || inTags || inContent;
+        });
+     }
+
+     return items.sort((a, b) => {
+        switch(sortOrder) {
+            case 'createdAt_asc': return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            case 'createdAt_desc': return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            case 'accessCount_desc': return (b.accessCount || 0) - (a.accessCount || 0);
+            case 'title_asc': return a.title.localeCompare(b.title);
+            default: return 0;
+        }
+     });
+
+  }, [appData.items, activeGroupId, searchQuery, filterByType, sortOrder]);
+
   const value = {
     appData,
     isLoading,
@@ -301,6 +353,7 @@ export const ContentStoreProvider = ({
     setActiveGroupId,
     searchQuery,
     setSearchQuery,
+    filteredItems,
     addGroup,
     updateGroup,
     deleteGroup,
@@ -312,6 +365,10 @@ export const ContentStoreProvider = ({
     logAccess,
     exportData,
     importData,
+    filterByType,
+    setFilterByType,
+    sortOrder,
+    setSortOrder
   };
 
   return (

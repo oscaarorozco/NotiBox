@@ -24,6 +24,7 @@ import { Checkbox } from "../ui/checkbox";
 type AddContentDialogProps = {
     trigger: ReactNode;
     itemToEdit?: ContentItem;
+    defaultGroupId?: string;
 }
 
 const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> }[] = [
@@ -33,7 +34,7 @@ const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> 
     { type: 'todo', label: 'Lista de Tareas', icon: ListTodo },
 ];
 
-export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps) {
+export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -118,12 +119,13 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
   }
 
   const handleSubmit = () => {
-    if (!title || !activeGroupId) return;
+    const targetGroupId = isEditing ? itemToEdit.groupId : (activeGroupId || defaultGroupId);
+    if (!title || !targetGroupId) return;
 
     const commonData = {
       title,
       tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-      groupId: activeGroupId,
+      groupId: targetGroupId,
     };
     
     let itemData;
@@ -235,14 +237,14 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
             </div>
         )}
 
-        <DialogFooter className="flex-row justify-between items-center sm:justify-between">
+        <DialogFooter className="flex-row justify-between items-center sm:justify-between w-full">
            {step === 1 && !isEditing && (
                 <Button variant="ghost" onClick={() => setStep(0)}>
                     <ArrowLeft className="mr-2 h-4 w-4"/>
                     Volver
                 </Button>
            )}
-           <div className={cn(step === 0 && !isEditing && "w-full")}>
+           <div className={cn(step === 0 && !isEditing && "w-full flex justify-end")}>
              <Button variant="outline" onClick={() => setIsOpen(false)} className={cn(step === 0 && !isEditing && "w-full")}>Cancelar</Button>
              {step === 1 && <Button onClick={handleSubmit} className="ml-2">{isEditing ? 'Guardar Cambios' : 'Agregar'}</Button>}
            </div>
