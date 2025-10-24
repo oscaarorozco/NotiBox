@@ -25,9 +25,11 @@ export function CommandPalette() {
   const { appData, logAccess } = useContentStore();
   const [mounted, setMounted] = useState(false);
 
-
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -44,6 +46,10 @@ export function CommandPalette() {
         window.open(url, '_blank', 'noopener,noreferrer');
     }
     setOpen(false);
+  }
+
+  if (!mounted) {
+    return null;
   }
 
   return (
