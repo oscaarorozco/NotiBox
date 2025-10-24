@@ -40,10 +40,11 @@ type ContentCardProps = {
 };
 
 const toPascalCase = (str: string) => {
+    if (!str) return 'Folder';
     return str.replace(/(^\w|-\w)/g, (g) => g.replace(/-/, "").toUpperCase());
 };
 
-const ImageViewer = ({ item, onOpen }: { item: ImageItem, trigger: React.ReactNode, onOpen: () => void }) => {
+const ImageViewer = ({ item, trigger, onOpen }: { item: ImageItem, trigger: React.ReactNode, onOpen: () => void }) => {
     return (
         <Dialog>
             <DialogTrigger asChild onClick={(e) => { e.stopPropagation(); onOpen(); }}>{trigger}</DialogTrigger>
@@ -58,7 +59,7 @@ export function ContentCard({ item }: ContentCardProps) {
   const { appData, deleteItem, updateItem, logAccess, moveItem, duplicateItem } = useContentStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
-  const iconName = item.icon ? toPascalCase(item.icon) : 'Folder';
+  const iconName = toPascalCase(item.icon || '');
   const CardIcon = LucideIcons[iconName as keyof typeof LucideIcons] || Folder;
 
   const typeTranslations: {[key: string]: string} = {
@@ -170,7 +171,7 @@ export function ContentCard({ item }: ContentCardProps) {
   const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
   
   const cardClasses = cn(
-    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out cursor-pointer",
+    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out",
     {
       'default': 'hover:border-primary/80 hover:shadow-lg hover:shadow-primary/10',
       'highlighted': 'border-primary/50 shadow-md shadow-primary/10',
@@ -268,5 +269,3 @@ export function ContentCard({ item }: ContentCardProps) {
     </Card>
   );
 }
-
-    
