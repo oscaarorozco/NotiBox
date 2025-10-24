@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import * as LucideIcons from "lucide-react";
 import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle, FolderSymlink, Copy, Expand } from "lucide-react";
 import {
   Card,
@@ -34,6 +35,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 type ContentCardProps = {
   item: ContentItem;
@@ -53,6 +55,8 @@ const ImageViewer = ({ item, trigger }: { item: ImageItem, trigger: React.ReactN
 export function ContentCard({ item }: ContentCardProps) {
   const { appData, deleteItem, updateItem, logAccess, moveItem, duplicateItem } = useContentStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const CardIcon = LucideIcons[item.icon as keyof typeof LucideIcons];
+
 
   const typeTranslations: {[key: string]: string} = {
     'note': 'Nota',
@@ -61,7 +65,7 @@ export function ContentCard({ item }: ContentCardProps) {
     'todo': 'Tareas'
   }
 
-  const renderIcon = () => {
+  const renderTypeIcon = () => {
     const className = "h-4 w-4 text-muted-foreground";
     switch (item.type) {
       case "link": return <LinkIcon className={className} />;
@@ -158,16 +162,28 @@ export function ContentCard({ item }: ContentCardProps) {
   }
 
   const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
+  
+  const cardClasses = cn(
+    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out",
+    {
+      'default': 'hover:border-primary/80 hover:shadow-lg hover:shadow-primary/10',
+      'highlighted': 'border-primary/50 shadow-md shadow-primary/10',
+      'minimalist': 'bg-transparent shadow-none border-dashed hover:border-solid hover:border-primary/50',
+    }[item.aspect || 'default']
+  );
 
   return (
     <Card 
-        className="group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out hover:border-primary/80 hover:shadow-lg hover:shadow-primary/10"
+        className={cardClasses}
         onClick={handleItemClick}
     >
       <CardHeader className="p-4 space-y-2">
-        <CardTitle className="text-base font-headline tracking-tight truncate pr-16">{item.title}</CardTitle>
+        <CardTitle className="text-base font-headline tracking-tight truncate pr-16 flex items-center gap-2">
+            {CardIcon && <CardIcon className="h-5 w-5 text-primary" />}
+            <span className="flex-1">{item.title}</span>
+        </CardTitle>
         <CardDescription className="flex items-center gap-2 text-xs">
-          {renderIcon()}
+          {renderTypeIcon()}
           <span>{typeTranslations[item.type]}</span>
         </CardDescription>
       </CardHeader>

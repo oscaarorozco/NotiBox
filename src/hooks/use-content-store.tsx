@@ -8,7 +8,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import type { AppData, Group, ContentItem, StatLog, TodoItem, ContentItemType, SortOrder } from "@/lib/types";
+import type { AppData, Group, ContentItem, StatLog, TodoItem, ContentItemType, SortOrder, CardAspect } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -24,7 +24,7 @@ import {
 const LOCAL_STORAGE_KEY = "content-hub-data";
 
 const defaultAppData: AppData = {
-  groups: [{ id: "1", name: "General", createdAt: new Date().toISOString(), accessCount: 0 }],
+  groups: [{ id: "1", name: "General", icon: "folder", createdAt: new Date().toISOString(), accessCount: 0 }],
   items: [],
   stats: [],
 };
@@ -38,8 +38,8 @@ interface ContentStore {
   setSearchQuery: (query: string) => void;
   filteredItems: ContentItem[];
   // Group actions
-  addGroup: (name: string) => void;
-  updateGroup: (id:string, name: string) => void;
+  addGroup: (name: string, icon?: string) => void;
+  updateGroup: (id:string, name: string, icon?: string) => void;
   deleteGroup: (id: string) => void;
   // Item actions
   addItem: (item: Omit<ContentItem, "id" | "createdAt" | "accessCount" | "lastAccessed">) => void;
@@ -115,6 +115,12 @@ export const ContentStoreProvider = ({
         if (!parsedData.items.every(i => 'accessCount' in i)) {
             parsedData.items = parsedData.items.map(i => ({ ...i, accessCount: i.accessCount || 0, lastAccessed: i.lastAccessed || null }));
         }
+        if (!parsedData.groups.every(g => 'icon' in g)) {
+          parsedData.groups = parsedData.groups.map(g => ({ ...g, icon: g.icon || 'folder' }));
+        }
+        if (!parsedData.items.every(i => 'aspect' in i)) {
+          parsedData.items = parsedData.items.map(i => ({ ...i, aspect: i.aspect || 'default' }));
+        }
 
         setAppData(parsedData);
         if (parsedData.groups.length > 0 && !parsedData.groups.find((g: Group) => g.id === activeGroupId)) {
@@ -181,10 +187,11 @@ export const ContentStoreProvider = ({
       if (id) logAccess(id, 'group');
   }, [logAccess]);
 
-  const addGroup = useCallback((name: string) => {
+  const addGroup = useCallback((name: string, icon: string = 'folder') => {
     const newGroup: Group = {
       id: Date.now().toString(),
       name,
+      icon,
       createdAt: new Date().toISOString(),
       accessCount: 0,
     };
@@ -193,10 +200,10 @@ export const ContentStoreProvider = ({
     toast({ title: "Grupo Creado", description: `El grupo "${name}" ha sido creado.` });
   }, [toast, setActiveGroupId]);
 
-  const updateGroup = useCallback((id: string, name: string) => {
+  const updateGroup = useCallback((id: string, name: string, icon?: string) => {
     setAppData((prev) => ({
       ...prev,
-      groups: prev.groups.map((g) => (g.id === id ? { ...g, name } : g)),
+      groups: prev.groups.map((g) => (g.id === id ? { ...g, name, icon: icon || g.icon } : g)),
     }));
     toast({ title: "Grupo Actualizado", description: `El grupo ha sido renombrado a "${name}".` });
   }, [toast]);
@@ -227,6 +234,8 @@ export const ContentStoreProvider = ({
       createdAt: new Date().toISOString(),
       accessCount: 0,
       lastAccessed: null,
+      icon: itemData.icon || undefined,
+      aspect: itemData.aspect || 'default',
     } as ContentItem;
     
     if (newItem.type === 'todo') {

@@ -2,11 +2,15 @@ export type ContentItemType = 'note' | 'link' | 'image' | 'todo';
 
 export type SortOrder = 'createdAt_desc' | 'createdAt_asc' | 'accessCount_desc' | 'title_asc';
 
+export type CardAspect = 'default' | 'highlighted' | 'minimalist';
+
 export interface BaseContentItem {
   id: string;
   groupId: string;
   type: ContentItemType;
   title: string;
+  icon?: string;
+  aspect?: CardAspect;
   tags: string[];
   createdAt: string;
   accessCount: number;
@@ -38,6 +42,7 @@ export type ContentItem = NoteItem | LinkItem | ImageItem | TodoItem;
 export interface Group {
   id: string;
   name: string;
+  icon?: string;
   createdAt: string;
   accessCount: number;
 }

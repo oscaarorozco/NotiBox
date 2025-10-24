@@ -1,9 +1,10 @@
 "use client";
 
 import { useContentStore } from "@/hooks/use-content-store";
-import { ListFilter } from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import { Folder } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { SortOrder, ContentItemType } from "@/lib/types";
+import { SortOrder } from "@/lib/types";
 import { CommandPalette } from "./command-palette";
 
 export function ContentToolbar() {
@@ -15,6 +16,8 @@ export function ContentToolbar() {
     } = useContentStore();
 
     const activeGroup = appData.groups.find(g => g.id === activeGroupId);
+    const ActiveGroupIcon = LucideIcons[activeGroup?.icon as keyof typeof LucideIcons] || Folder;
+
 
     const sortOptions: { value: SortOrder, label: string}[] = [
         { value: 'createdAt_desc', label: 'Más recientes' },
@@ -26,8 +29,9 @@ export function ContentToolbar() {
     return (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
              <div className="flex-1">
-                <h1 className="text-2xl font-headline font-semibold">
-                    {activeGroup ? activeGroup.name : 'Panel'}
+                <h1 className="text-2xl font-headline font-semibold flex items-center gap-2">
+                    {activeGroup && <ActiveGroupIcon className="h-6 w-6 text-muted-foreground"/>}
+                    <span>{activeGroup ? activeGroup.name : 'Panel'}</span>
                 </h1>
                 <p className="text-muted-foreground text-sm">
                     {activeGroup ? `Viendo ${appData.items.filter(i => i.groupId === activeGroupId).length} elemento(s).` : 'Selecciona un grupo para empezar.'}
