@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import type { ContentItem, ContentItemType } from "@/lib/types";
 import { readFileAsDataURL } from "@/lib/utils";
 
@@ -58,7 +58,7 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
         const dataUrl = await readFileAsDataURL(file);
         setUrl(dataUrl);
       } catch (error) {
-        console.error("Error reading file", error);
+        console.error("Error al leer el archivo", error);
       }
     }
   };
@@ -124,32 +124,32 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Content' : 'Add New Content'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Editar Contenido' : 'Agregar Nuevo Contenido'}</DialogTitle>
           <DialogDescription>
-            Fill in the details for your new content item.
+            Rellena los detalles de tu nuevo elemento de contenido.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="type" className="text-right">Type</Label>
+            <Label htmlFor="type" className="text-right">Tipo</Label>
             <Select value={type} onValueChange={(value) => setType(value as ContentItemType)} disabled={isEditing}>
               <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select content type" />
+                <SelectValue placeholder="Selecciona el tipo de contenido" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="note">Note</SelectItem>
-                <SelectItem value="link">Link</SelectItem>
-                <SelectItem value="image">Image</SelectItem>
+                <SelectItem value="note">Nota</SelectItem>
+                <SelectItem value="link">Enlace</SelectItem>
+                <SelectItem value="image">Imagen</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">Title</Label>
+            <Label htmlFor="title" className="text-right">Título</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="col-span-3" />
           </div>
           {type === "note" && (
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="content" className="text-right">Content</Label>
+              <Label htmlFor="content" className="text-right">Contenido</Label>
               <Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} className="col-span-3" />
             </div>
           )}
@@ -161,22 +161,22 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
           )}
           {type === "image" && (
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="image-file" className="text-right">Image</Label>
+              <Label htmlFor="image-file" className="text-right">Imagen</Label>
               <div className="col-span-3 grid gap-2">
                 <Input id="image-file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
-                <Textarea placeholder="Or paste image here" className="h-20" onPaste={handlePaste}/>
-                {url && <img src={url} alt="Preview" className="mt-2 max-h-40 rounded-md object-contain" />}
+                <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste}/>
+                {url && <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain" />}
               </div>
             </div>
           )}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="tags" className="text-right">Tags</Label>
-            <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="col-span-3" placeholder="Comma-separated tags" />
+            <Label htmlFor="tags" className="text-right">Etiquetas</Label>
+            <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="col-span-3" placeholder="Etiquetas separadas por comas" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit}>{isEditing ? 'Save Changes' : 'Add Item'}</Button>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit}>{isEditing ? 'Guardar Cambios' : 'Agregar'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

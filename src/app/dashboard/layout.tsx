@@ -1,5 +1,5 @@
 "use client";
-import { ContentStoreProvider } from "@/hooks/use-content-store";
+import { ContentStoreProvider } from "@/hooks/use-content-store.tsx";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 import { Header } from "@/components/dashboard/header";
 

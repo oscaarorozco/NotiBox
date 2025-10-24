@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from '@/hooks/use-toast';
 import type { AppData } from '@/lib/types';
@@ -29,10 +29,10 @@ export function SettingsView() {
             importData(jsonData);
           }
         } catch (error) {
-          console.error("Error parsing imported file:", error);
+          console.error("Error al analizar el archivo importado:", error);
           toast({
-            title: "Import Error",
-            description: "The selected file is not a valid JSON backup.",
+            title: "Error de Importación",
+            description: "El archivo seleccionado no es una copia de seguridad JSON válida.",
             variant: "destructive",
           });
         }
@@ -48,27 +48,27 @@ export function SettingsView() {
     <div className="grid gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Data Management</CardTitle>
-          <CardDescription>Export your data or import a previous backup.</CardDescription>
+          <CardTitle>Gestión de Datos</CardTitle>
+          <CardDescription>Exporta tus datos o importa una copia de seguridad anterior.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="flex-1">
-              <h3 className="font-semibold">Export Data</h3>
-              <p className="text-sm text-muted-foreground">Download all your groups, content, and stats as a JSON file.</p>
+              <h3 className="font-semibold">Exportar Datos</h3>
+              <p className="text-sm text-muted-foreground">Descarga todos tus grupos, contenido y estadísticas como un archivo JSON.</p>
             </div>
-            <Button onClick={exportData}>Export</Button>
+            <Button onClick={exportData}>Exportar</Button>
           </div>
           <Separator className="my-6" />
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="flex-1">
-              <h3 className="font-semibold">Import Data</h3>
+              <h3 className="font-semibold">Importar Datos</h3>
               <p className="text-sm text-muted-foreground">
-                Import data from a previously exported JSON file.
-                <strong className="block text-destructive">Warning: This will overwrite all your current data.</strong>
+                Importa datos desde un archivo JSON previamente exportado.
+                <strong className="block text-destructive">Advertencia: Esto sobrescribirá todos tus datos actuales.</strong>
               </p>
             </div>
-            <Button variant="outline" onClick={handleImportClick}>Import</Button>
+            <Button variant="outline" onClick={handleImportClick}>Importar</Button>
             <input
               type="file"
               ref={fileInputRef}

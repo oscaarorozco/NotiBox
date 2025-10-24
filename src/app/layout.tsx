@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
+const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
+const robotoMono = Roboto_Mono({ subsets: ["latin"], variable: "--font-headline" });
+
 export const metadata: Metadata = {
-  title: "Content Hub",
-  description: "Your personal content organizer.",
+  title: "Central de Contenido",
+  description: "Tu organizador de contenido personal.",
 };
 
 export default function RootLayout({
@@ -15,13 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=Belleza&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased">
+      <body className={`${inter.variable} ${robotoMono.variable} font-body antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

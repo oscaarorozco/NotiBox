@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, {
@@ -70,7 +69,7 @@ export const ContentStoreProvider = ({
         setActiveGroupId(defaultAppData.groups[0]?.id || null);
       }
     } catch (error) {
-      console.error("Failed to load data from localStorage", error);
+      console.error("No se pudieron cargar los datos de localStorage", error);
       setAppData(defaultAppData);
     } finally {
       setIsLoading(false);
@@ -82,10 +81,10 @@ export const ContentStoreProvider = ({
       try {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appData));
       } catch (error) {
-        console.error("Failed to save data to localStorage", error);
+        console.error("No se pudieron guardar los datos en localStorage", error);
         toast({
           title: "Error",
-          description: "Could not save your changes. Your browser storage might be full.",
+          description: "No se pudieron guardar tus cambios. El almacenamiento de tu navegador podría estar lleno.",
           variant: "destructive",
         });
       }
@@ -101,7 +100,7 @@ export const ContentStoreProvider = ({
     };
     setAppData((prev) => ({ ...prev, groups: [...prev.groups, newGroup] }));
     setActiveGroupId(newGroup.id);
-    toast({ title: "Group Created", description: `Group "${name}" has been created.` });
+    toast({ title: "Grupo Creado", description: `El grupo "${name}" ha sido creado.` });
   }, [toast]);
 
   const updateGroup = useCallback((id: string, name: string) => {
@@ -109,7 +108,7 @@ export const ContentStoreProvider = ({
       ...prev,
       groups: prev.groups.map((g) => (g.id === id ? { ...g, name } : g)),
     }));
-    toast({ title: "Group Updated", description: `Group has been renamed to "${name}".` });
+    toast({ title: "Grupo Actualizado", description: `El grupo ha sido renombrado a "${name}".` });
   }, [toast]);
 
   const deleteGroup = useCallback((id: string) => {
@@ -121,7 +120,7 @@ export const ContentStoreProvider = ({
       }
       return { ...prev, groups: newGroups, items: newItems };
     });
-    toast({ title: "Group Deleted", description: "The group and its contents have been deleted." });
+    toast({ title: "Grupo Eliminado", description: "El grupo y su contenido han sido eliminados." });
   }, [activeGroupId, toast]);
 
   const addItem = useCallback((itemData: Omit<ContentItem, "id" | "createdAt" | "accessCount" | "lastAccessed">) => {
@@ -133,7 +132,7 @@ export const ContentStoreProvider = ({
       lastAccessed: null,
     } as ContentItem;
     setAppData((prev) => ({ ...prev, items: [...prev.items, newItem] }));
-    toast({ title: "Item Added", description: `"${itemData.title}" has been added.` });
+    toast({ title: "Elemento Agregado", description: `"${itemData.title}" ha sido agregado.` });
   }, [toast]);
   
   const updateItem = useCallback((updatedItem: ContentItem) => {
@@ -141,12 +140,12 @@ export const ContentStoreProvider = ({
       ...prev,
       items: prev.items.map((i) => (i.id === updatedItem.id ? updatedItem : i)),
     }));
-    toast({ title: "Item Updated", description: `"${updatedItem.title}" has been updated.` });
+    toast({ title: "Elemento Actualizado", description: `"${updatedItem.title}" ha sido actualizado.` });
   }, [toast]);
   
   const deleteItem = useCallback((id: string) => {
     setAppData((prev) => ({ ...prev, items: prev.items.filter((i) => i.id !== id) }));
-    toast({ title: "Item Deleted", description: "The item has been deleted." });
+    toast({ title: "Elemento Eliminado", description: "El elemento ha sido eliminado." });
   }, [toast]);
 
   const logAccess = useCallback((targetId: string, targetType: "group" | "item") => {
@@ -188,10 +187,10 @@ export const ContentStoreProvider = ({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast({ title: "Export Successful", description: "Your data has been downloaded." });
+      toast({ title: "Exportación Exitosa", description: "Tus datos han sido descargados." });
     } catch (error) {
-      console.error("Failed to export data", error);
-      toast({ title: "Export Failed", description: "Could not export your data.", variant: "destructive" });
+      console.error("Falló la exportación de datos", error);
+      toast({ title: "Exportación Fallida", description: "No se pudieron exportar tus datos.", variant: "destructive" });
     }
   }, [appData, toast]);
 
@@ -200,9 +199,9 @@ export const ContentStoreProvider = ({
     if (data && Array.isArray(data.groups) && Array.isArray(data.items) && Array.isArray(data.stats)) {
       setAppData(data);
       setActiveGroupId(data.groups[0]?.id || null);
-      toast({ title: "Import Successful", description: "Your data has been imported." });
+      toast({ title: "Importación Exitosa", description: "Tus datos han sido importados." });
     } else {
-      toast({ title: "Import Failed", description: "The imported file is not valid.", variant: "destructive" });
+      toast({ title: "Importación Fallida", description: "El archivo importado no es válido.", variant: "destructive" });
     }
   }, [toast]);
 
@@ -237,7 +236,7 @@ export const ContentStoreProvider = ({
 export const useContentStore = () => {
   const context = useContext(ContentStoreContext);
   if (!context) {
-    throw new Error("useContentStore must be used within a ContentStoreProvider");
+    throw new Error("useContentStore debe ser usado dentro de un ContentStoreProvider");
   }
   return context;
 };

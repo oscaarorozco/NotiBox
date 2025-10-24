@@ -16,8 +16,8 @@ export function SidebarNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { href: "/dashboard", icon: Home, label: "Dashboard" },
-    { href: "/dashboard/stats", icon: LineChart, label: "Stats" },
+    { href: "/dashboard", icon: Home, label: "Inicio" },
+    { href: "/dashboard/stats", icon: LineChart, label: "Estadísticas" },
   ];
 
   return (
@@ -29,7 +29,7 @@ export function SidebarNav() {
             className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
           >
             <Book className="h-4 w-4 transition-all group-hover:scale-110" />
-            <span className="sr-only">Content Hub</span>
+            <span className="sr-only">Central de Contenido</span>
           </Link>
           {navItems.map((item) => (
             <Tooltip key={item.href}>
@@ -66,10 +66,10 @@ export function SidebarNav() {
                 )}
               >
                 <Settings className="h-5 w-5" />
-                <span className="sr-only">Settings</span>
+                <span className="sr-only">Ajustes</span>
               </Link>
             </TooltipTrigger>
-            <TooltipContent side="right">Settings</TooltipContent>
+            <TooltipContent side="right">Ajustes</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </nav>

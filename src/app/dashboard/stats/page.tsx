@@ -1,7 +1,7 @@
 "use client";
 
 import { StatsView } from "@/components/dashboard/stats-view";
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StatsPage() {

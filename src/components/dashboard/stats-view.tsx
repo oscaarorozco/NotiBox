@@ -15,9 +15,10 @@ import {
   ChartLegend,
   ChartLegendContent
 } from "@/components/ui/chart";
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { useMemo } from "react";
 import { eachDayOfInterval, subDays, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
@@ -36,7 +37,12 @@ export function StatsView() {
       acc[item.type] = (acc[item.type] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+    const typeTranslations: {[key: string]: string} = {
+        'note': 'Notas',
+        'link': 'Enlaces',
+        'image': 'Imágenes'
+    }
+    return Object.entries(counts).map(([name, value]) => ({ name: typeTranslations[name] || name, value }));
   }, [appData.items]);
 
   const weeklyActivityData = useMemo(() => {
@@ -55,7 +61,7 @@ export function StatsView() {
     });
 
     return Object.entries(activityMap).map(([date, count]) => ({
-        date: format(new Date(date), 'MMM d'),
+        date: format(new Date(date), 'MMM d', { locale: es }),
         count,
     }));
   }, [appData.stats]);
@@ -64,8 +70,8 @@ export function StatsView() {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
             <CardHeader>
-                <CardTitle>Group Usage</CardTitle>
-                <CardDescription>Number of times each group has been accessed.</CardDescription>
+                <CardTitle>Uso de Grupos</CardTitle>
+                <CardDescription>Número de veces que se ha accedido a cada grupo.</CardDescription>
             </CardHeader>
             <CardContent>
                 <ChartContainer config={{}} className="h-[300px] w-full">
@@ -83,8 +89,8 @@ export function StatsView() {
         </Card>
         <Card className="col-span-3">
             <CardHeader>
-                <CardTitle>Content Types</CardTitle>
-                <CardDescription>Distribution of your saved content.</CardDescription>
+                <CardTitle>Tipos de Contenido</CardTitle>
+                <CardDescription>Distribución de tu contenido guardado.</CardDescription>
             </CardHeader>
             <CardContent>
                  <ChartContainer config={{}} className="h-[300px] w-full">
@@ -104,8 +110,8 @@ export function StatsView() {
         </Card>
         <Card className="col-span-full">
             <CardHeader>
-                <CardTitle>Weekly Activity</CardTitle>
-                <CardDescription>Your interaction with the app over the last 7 days.</CardDescription>
+                <CardTitle>Actividad Semanal</CardTitle>
+                <CardDescription>Tu interacción con la app en los últimos 7 días.</CardDescription>
             </CardHeader>
             <CardContent>
                  <ChartContainer config={{}} className="h-[300px] w-full">
@@ -115,7 +121,7 @@ export function StatsView() {
                             <XAxis dataKey="date" />
                             <YAxis />
                             <RechartsTooltip content={<ChartTooltipContent />} />
-                            <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8 }} />
+                            <Line type="monotone" dataKey="count" name="Interacciones" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8 }} />
                         </LineChart>
                     </ResponsiveContainer>
                 </ChartContainer>

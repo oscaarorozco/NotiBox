@@ -19,7 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ContentItem } from "@/lib/types";
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { AddContentDialog } from "./add-content-dialog";
 
 type ContentCardProps = {
@@ -86,6 +86,12 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
     }
   }
 
+  const typeTranslations: {[key: string]: string} = {
+    'note': 'Nota',
+    'link': 'Enlace',
+    'image': 'Imagen'
+  }
+
   return (
     <Card className="flex flex-col justify-between group cursor-pointer hover:border-primary/50 transition-all" onClick={handleItemClick}>
       <CardHeader className="flex flex-row items-start justify-between gap-4 p-4">
@@ -93,9 +99,9 @@ export function ContentCard({ item, onCardClick }: ContentCardProps) {
           <CardTitle className="text-base font-headline tracking-wide">{item.title}</CardTitle>
           <CardDescription className="flex items-center gap-2 text-xs">
             {renderIcon()}
-            <span>{item.type}</span>
-            <span title={`Accessed ${item.accessCount} times`}>
-                &#8226; {item.accessCount} views
+            <span>{typeTranslations[item.type]}</span>
+            <span title={`Accedido ${item.accessCount} veces`}>
+                &#8226; {item.accessCount} vistas
             </span>
           </CardDescription>
         </div>

@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContentGrid } from "@/components/dashboard/content-grid";
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { AddContentDialog } from "@/components/dashboard/add-content-dialog";
 import {
   Dialog,
@@ -70,13 +70,13 @@ function GroupManager() {
   return (
     <Card className="w-full md:w-1/4 h-fit">
       <CardHeader>
-        <CardTitle>Groups</CardTitle>
-        <CardDescription>Organize your content into groups.</CardDescription>
+        <CardTitle>Grupos</CardTitle>
+        <CardDescription>Organiza tu contenido en grupos.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="flex gap-2">
           <Input
-            placeholder="New group name"
+            placeholder="Nombre del nuevo grupo"
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddGroup()}
@@ -91,7 +91,7 @@ function GroupManager() {
               key={group.id}
               onClick={() => setActiveGroupId(group.id)}
               className={`flex items-center justify-between p-2 rounded-md cursor-pointer ${
-                activeGroupId === group.id ? "bg-accent" : "hover:bg-muted"
+                activeGroupId === group.id ? "bg-accent text-accent-foreground" : "hover:bg-muted"
               }`}
             >
               <span className="font-medium text-sm">{group.name}</span>
@@ -105,14 +105,14 @@ function GroupManager() {
                   <DropdownMenuContent>
                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditingGroup(group); }}>
                       <Edit className="mr-2 h-4 w-4" />
-                      Rename
+                      Renombrar
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={(e) => { e.stopPropagation(); deleteGroup(group.id); }}
                       className="text-destructive"
                     >
                       <Trash className="mr-2 h-4 w-4" />
-                      Delete
+                      Eliminar
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -124,10 +124,10 @@ function GroupManager() {
        <Dialog open={!!editingGroup} onOpenChange={() => setEditingGroup(null)}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Rename Group</DialogTitle>
+                <DialogTitle>Renombrar Grupo</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-                <Label htmlFor="group-name">Group Name</Label>
+                <Label htmlFor="group-name">Nombre del Grupo</Label>
                 <Input 
                     id="group-name" 
                     value={editingGroup?.name || ''} 
@@ -136,8 +136,8 @@ function GroupManager() {
                 />
             </div>
             <DialogFooter>
-                <Button variant="outline" onClick={() => setEditingGroup(null)}>Cancel</Button>
-                <Button onClick={handleUpdateGroup}>Save</Button>
+                <Button variant="outline" onClick={() => setEditingGroup(null)}>Cancelar</Button>
+                <Button onClick={handleUpdateGroup}>Guardar</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
                 <Button size="sm" className="h-8 gap-1">
                   <PlusCircle className="h-3.5 w-3.5" />
                   <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Add Content
+                    Agregar Contenido
                   </span>
                 </Button>
               } />
@@ -168,13 +168,13 @@ export default function DashboardPage() {
           <TabsContent value="all">
             <Card>
               <CardHeader>
-                <CardTitle>Content</CardTitle>
+                <CardTitle>Contenido</CardTitle>
                 <CardDescription>
-                  All your saved notes, links, and images in this group.
+                  Todas tus notas, enlaces e imágenes guardadas en este grupo.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {activeGroupId ? <ContentGrid /> : <p>Select a group to see its content.</p>}
+                {activeGroupId ? <ContentGrid /> : <p>Selecciona un grupo para ver su contenido.</p>}
               </CardContent>
             </Card>
           </TabsContent>

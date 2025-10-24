@@ -4,11 +4,9 @@ import {
   Book,
   Home,
   LineChart,
-  Package,
   PanelLeft,
   Search,
   Settings,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,25 +20,22 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { useContentStore } from "@/hooks/use-content-store";
-import Image from "next/image";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 
 export function Header() {
   const pathname = usePathname();
   const { setSearchQuery } = useContentStore();
-  const pageName =
-    pathname.split("/").pop()?.replace("-", " ") || "Dashboard";
+  
+  const pageTranslations: {[key: string]: string} = {
+    'dashboard': 'Inicio',
+    'stats': 'Estadísticas',
+    'settings': 'Ajustes',
+  }
+  const pageName = pageTranslations[pathname.split("/").pop() || 'dashboard'] || "Panel";
+
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -48,7 +43,7 @@ export function Header() {
         <SheetTrigger asChild>
           <Button size="icon" variant="outline" className="sm:hidden">
             <PanelLeft className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
+            <span className="sr-only">Abrir Menú</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="sm:max-w-xs">
@@ -58,7 +53,7 @@ export function Header() {
               className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
             >
               <Book className="h-5 w-5 transition-all group-hover:scale-110" />
-              <span className="sr-only">Content Hub</span>
+              <span className="sr-only">Central de Contenido</span>
             </Link>
             <Link
               href="/dashboard"
@@ -69,7 +64,7 @@ export function Header() {
               }`}
             >
               <Home className="h-5 w-5" />
-              Dashboard
+              Inicio
             </Link>
             <Link
               href="/dashboard/stats"
@@ -80,7 +75,7 @@ export function Header() {
               }`}
             >
               <LineChart className="h-5 w-5" />
-              Stats
+              Estadísticas
             </Link>
             <Link
               href="/dashboard/settings"
@@ -91,7 +86,7 @@ export function Header() {
               }`}
             >
               <Settings className="h-5 w-5" />
-              Settings
+              Ajustes
             </Link>
           </nav>
         </SheetContent>
@@ -100,13 +95,13 @@ export function Header() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/dashboard">Panel</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage className="capitalize font-headline">
-              {pageName === "dashboard" ? "Home" : pageName}
+              {pageName}
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -117,7 +112,7 @@ export function Header() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search content..."
+              placeholder="Buscar contenido..."
               className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
               onChange={(e) => setSearchQuery(e.target.value)}
             />

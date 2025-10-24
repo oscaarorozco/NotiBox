@@ -1,6 +1,6 @@
 "use client";
 
-import { useContentStore } from "@/hooks/use-content-store";
+import { useContentStore } from "@/hooks/use-content-store.tsx";
 import { ContentCard } from "./content-card";
 
 export function ContentGrid() {
@@ -29,9 +29,9 @@ export function ContentGrid() {
   if (filteredItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-60">
-        <h3 className="text-xl font-semibold font-headline">No Content Yet</h3>
+        <h3 className="text-xl font-semibold font-headline">Aún no hay contenido</h3>
         <p className="text-muted-foreground mt-2">
-          Click "Add Content" to start organizing your digital life.
+          Haz clic en "Agregar Contenido" para empezar a organizar tu vida digital.
         </p>
       </div>
     );
