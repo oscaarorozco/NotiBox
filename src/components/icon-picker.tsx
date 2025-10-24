@@ -31,6 +31,7 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const filteredIcons = React.useMemo(() => {
+    if (!iconList) return [];
     if (!search) return iconList;
     return iconList.filter((icon) =>
       icon.toLowerCase().includes(search.toLowerCase())
