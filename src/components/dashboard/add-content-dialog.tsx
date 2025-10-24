@@ -24,10 +24,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, Wand2, Loader2 } from "lucide-react";
-import { Card, CardContent } from "../ui/card";
-import { Checkbox } from "../ui/checkbox";
-import { generateNoteContent } from "@/ai/flows/generate-content-flow";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 type AddContentDialogProps = {
@@ -43,36 +42,27 @@ const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> 
     { type: 'todo', label: 'Lista de Tareas', icon: ListTodo },
 ];
 
-enum DialogState {
-    SELECT_TYPE,
-    EDIT_FORM,
-    GENERATE_AI
-}
-
 export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [dialogState, setDialogState] = useState(DialogState.SELECT_TYPE);
-
-  const isEditing = !!itemToEdit;
+  const [isEditing, setIsEditing] = useState(!!itemToEdit);
   
-  const [type, setType] = useState<ContentItemType>("note");
-  const [title, setTitle] = useState("");
-  const [icon, setIcon] = useState<string | undefined>(undefined);
-  const [aspect, setAspect] = useState<CardAspect>('default');
-  const [content, setContent] = useState("");
-  const [url, setUrl] = useState("");
-  const [tags, setTags] = useState("");
-  const [tasks, setTasks] = useState<{ id: string; text: string; completed: boolean }[]>([]);
+  const [type, setType] = useState<ContentItemType>(itemToEdit?.type || "note");
+  const [title, setTitle] = useState(itemToEdit?.title || "");
+  const [icon, setIcon] = useState<string | undefined>(itemToEdit?.icon || undefined);
+  const [aspect, setAspect] = useState<CardAspect>(itemToEdit?.aspect || 'default');
+  const [content, setContent] = useState(itemToEdit?.type === 'note' ? itemToEdit.content : "");
+  const [url, setUrl] = useState(itemToEdit?.type === 'link' || itemToEdit?.type === 'image' ? itemToEdit.url : "");
+  const [tags, setTags] = useState(itemToEdit?.tags.join(", ") || "");
+  const [tasks, setTasks] = useState(itemToEdit?.type === 'todo' ? itemToEdit.tasks : []);
   const [newTaskText, setNewTaskText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-
   useEffect(() => {
     if (isOpen) {
-        if (isEditing && itemToEdit) {
+        const editing = !!itemToEdit;
+        setIsEditing(editing);
+        if (editing && itemToEdit) {
             setTitle(itemToEdit.title || "");
             setType(itemToEdit.type);
             setIcon(itemToEdit.icon);
@@ -84,9 +74,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 case 'image': setUrl(itemToEdit.url); break;
                 case 'todo': setTasks(itemToEdit.tasks); break;
             }
-            setDialogState(DialogState.EDIT_FORM);
         } else {
-            setDialogState(DialogState.SELECT_TYPE);
             setTitle("");
             setType("note");
             setIcon(undefined);
@@ -96,28 +84,10 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
             setTags("");
             setTasks([]);
             setNewTaskText("");
-            setAiPrompt("");
         }
     }
-  }, [isOpen, itemToEdit, isEditing]);
+  }, [isOpen, itemToEdit]);
   
-  const handleGenerateWithAI = async () => {
-      if (!aiPrompt) return;
-      setIsGenerating(true);
-      try {
-          const result = await generateNoteContent({ prompt: aiPrompt });
-          setTitle(result.title);
-          setContent(result.content);
-          setType('note');
-          setDialogState(DialogState.EDIT_FORM);
-      } catch (error) {
-          console.error("Error al generar contenido con IA:", error);
-      } finally {
-          setIsGenerating(false);
-      }
-  }
-
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -189,11 +159,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
     setIsOpen(false);
   };
-
-  const handleSelectType = (selectedType: ContentItemType) => {
-    setType(selectedType);
-    setDialogState(DialogState.EDIT_FORM);
-  }
   
   const renderFormFields = () => (
     <Accordion type="multiple" defaultValue={['item-details']} className="w-full">
@@ -323,44 +288,20 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Contenido' : 'Agregar Nuevo Contenido'}</DialogTitle>
           <DialogDescription>
-            {dialogState === DialogState.SELECT_TYPE && !isEditing && 'Selecciona el tipo de contenido que quieres agregar.'}
-            {dialogState === DialogState.EDIT_FORM && 'Rellena los detalles para tu nuevo elemento de contenido.'}
-            {dialogState === DialogState.GENERATE_AI && 'Describe la idea que tienes y la IA creará una nota por ti.'}
+            {isEditing ? 'Modifica los detalles de tu elemento.' : 'Selecciona un tipo de contenido para agregar.'}
           </DialogDescription>
         </DialogHeader>
         
-        {dialogState === DialogState.SELECT_TYPE && !isEditing && (
+        {!isEditing ? (
              <div className="grid grid-cols-2 gap-4 py-4">
                 {contentTypes.map(({ type, label, icon: Icon }) => (
-                    <Card key={type} onClick={() => handleSelectType(type)} className="p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-accent hover:border-primary/50 transition-all text-center">
+                    <div key={type} onClick={() => { setType(type); setIsEditing(true); }} className="p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-accent hover:border-primary/50 transition-all text-center border rounded-lg">
                         <Icon className="h-8 w-8 text-primary" />
                         <span className="font-semibold">{label}</span>
-                    </Card>
+                    </div>
                 ))}
-                <Card onClick={() => setDialogState(DialogState.GENERATE_AI)} className="p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-accent hover:border-primary/50 transition-all text-center col-span-2 bg-primary/10 border-primary/30">
-                    <Wand2 className="h-8 w-8 text-primary" />
-                    <span className="font-semibold">Generar nota con IA</span>
-                </Card>
             </div>
-        )}
-
-        {dialogState === DialogState.GENERATE_AI && (
-            <div className="py-4 space-y-4">
-                <Textarea 
-                    placeholder="Ej: receta de lasaña vegetariana, ideas para un viaje de fin de semana..."
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    className="min-h-24"
-                />
-                 <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiPrompt} className="w-full">
-                    {isGenerating ? <Loader2 className="animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                    {isGenerating ? 'Generando...' : 'Generar Contenido'}
-                </Button>
-            </div>
-        )}
-
-
-        {dialogState === DialogState.EDIT_FORM && (
+        ) : (
             <div className="grid gap-4 py-4">
                 {renderFormFields()}
             </div>
@@ -368,11 +309,9 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
         <DialogFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-            {dialogState === DialogState.EDIT_FORM && <Button onClick={handleSubmit}>{isEditing ? 'Guardar Cambios' : 'Agregar'}</Button>}
+            {isEditing && <Button onClick={handleSubmit}>{itemToEdit ? 'Guardar Cambios' : 'Agregar'}</Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
-    

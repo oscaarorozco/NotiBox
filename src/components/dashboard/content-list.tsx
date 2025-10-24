@@ -167,7 +167,7 @@ export function ContentList() {
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                         </DropdownMenuSub>
-                      <DropdownMenuItem className="text-destructive" onClick={() => deleteItem(item.id)}>
+                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => deleteItem(item.id)}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         <span>Eliminar</span>
                       </DropdownMenuItem>

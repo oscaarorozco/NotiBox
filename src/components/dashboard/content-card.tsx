@@ -166,7 +166,8 @@ export function ContentCard({ item }: ContentCardProps) {
   };
   
   const handleItemClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    // This stops the click from propagating to parent elements if needed.
+    // e.stopPropagation();
   }
 
   const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
@@ -186,10 +187,50 @@ export function ContentCard({ item }: ContentCardProps) {
         onClick={handleItemClick}
     >
       <CardHeader className="p-4 space-y-2">
-        <CardTitle className="text-base font-headline tracking-tight truncate pr-16 flex items-center gap-2">
-            <CardIcon className="h-5 w-5 text-primary" />
-            <span className="flex-1">{item.title}</span>
-        </CardTitle>
+        <div className="flex items-start justify-between">
+            <CardTitle className="text-base font-headline tracking-tight flex items-center gap-2 pr-4">
+                <CardIcon className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="flex-1 truncate">{item.title}</span>
+            </CardTitle>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 -mt-1" onClick={(e) => e.stopPropagation()}>
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end">
+                    <AddContentDialog itemToEdit={item} trigger={
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>Editar</span>
+                        </DropdownMenuItem>
+                    }/>
+                    <DropdownMenuItem onClick={() => duplicateItem(item.id)}>
+                        <Copy className="mr-2 h-4 w-4" />
+                        <span>Duplicar</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSub>
+                        <DropdownMenuSubTrigger disabled={otherGroups.length === 0}>
+                            <FolderSymlink className="mr-2 h-4 w-4" />
+                            <span>Mover a...</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                                {otherGroups.map(group => (
+                                    <DropdownMenuItem key={group.id} onClick={() => moveItem(item.id, group.id)}>
+                                        <span>{group.name}</span>
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                    <DropdownMenuItem onClick={() => deleteItem(item.id)} className="text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Eliminar</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
         <CardDescription className="flex items-center gap-2 text-xs">
           {renderTypeIcon()}
           <span>{typeTranslations[item.type]}</span>
@@ -207,61 +248,6 @@ export function ContentCard({ item }: ContentCardProps) {
           </Badge>
         ))}
       </CardFooter>
-
-      <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-         <AddContentDialog itemToEdit={item} trigger={
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
-                <Edit className="h-4 w-4" />
-                <span className="sr-only">Editar</span>
-            </Button>
-        } />
-        
-        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/80 hover:text-destructive" onClick={(e) => { e.stopPropagation(); setIsMenuOpen(true) }}>
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Eliminar</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-                <DropdownMenuItem onClick={() => { deleteItem(item.id); setIsMenuOpen(false); }} className="text-destructive focus:text-destructive">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Confirmar eliminación
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
-                    <FolderSymlink className="h-4 w-4" />
-                    <span className="sr-only">Mover</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger disabled={otherGroups.length === 0}>
-                        <FolderSymlink className="mr-2 h-4 w-4" />
-                        <span>Mover a...</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                             {otherGroups.map(group => (
-                                <DropdownMenuItem key={group.id} onClick={() => moveItem(item.id, group.id)}>
-                                    <span>{group.name}</span>
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                </DropdownMenuSub>
-                 <DropdownMenuItem onClick={() => duplicateItem(item.id)}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    <span>Duplicar</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-
-      </div>
 
        <div className="absolute bottom-4 right-4 flex items-center gap-1 text-xs text-muted-foreground">
           <Eye className="h-3.5 w-3.5" />

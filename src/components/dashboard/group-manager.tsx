@@ -30,6 +30,7 @@ import { useContentStore } from "@/hooks/use-content-store";
 import { SidebarMenuButton } from "../ui/sidebar";
 
 const toPascalCase = (str: string) => {
+    if (!str) return 'Folder';
     return str.replace(/(^\w|-\w)/g, (g) => g.replace(/-/, "").toUpperCase());
 };
 
@@ -177,5 +178,3 @@ export function GroupManager() {
     </>
   );
 }
-
-    

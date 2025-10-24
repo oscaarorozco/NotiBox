@@ -139,7 +139,7 @@ export const ContentStoreProvider = ({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeGroupId]);
 
   useEffect(() => {
     if (!isLoading) {

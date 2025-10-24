@@ -15,7 +15,7 @@ import {
   ChartLegend,
   ChartLegendContent
 } from "@/components/ui/chart";
-import { useContentStore } from "@/hooks/use-content-store.tsx";
+import { useContentStore } from "@/hooks/use-content-store";
 import { useMemo } from "react";
 import { eachDayOfInterval, subDays, format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -65,7 +65,7 @@ export function StatsView() {
         'image': 'Imágenes',
         'todo': 'Tareas'
     }
-    return Object.entries(counts).map(([name, value]) => ({ name: typeTranslations[name] || name, value, fill: `var(--color-${typeTranslations[name] || name})` }));
+    return Object.entries(counts).map(([name, value]) => ({ name: typeTranslations[name] || name, value, fill: `var(--color-${name})` }));
   }, [appData.items]);
 
   const weeklyActivityData = useMemo(() => {
@@ -136,8 +136,8 @@ export function StatsView() {
                                     </text>
                                   );
                                 }}>
-                                    {contentTypeData.map((entry) => (
-                                        <Cell key={`cell-${entry.name}`} fill={entry.fill} stroke="hsl(var(--background))" />
+                                    {contentTypeData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={contentTypeChartConfig[entry.name as keyof typeof contentTypeChartConfig]?.color} stroke="hsl(var(--background))" />
                                     ))}
                                 </Pie>
                                 <ChartLegend content={<ChartLegendContent />} />
