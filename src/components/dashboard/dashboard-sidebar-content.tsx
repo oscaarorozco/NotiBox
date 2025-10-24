@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Book, LayoutDashboard, LineChart, Settings } from "lucide-react";
+import { Book, LayoutDashboard, LineChart, Settings, Plus } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
-  Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarMenu,
@@ -14,10 +13,13 @@ import {
 } from "@/components/ui/sidebar";
 import { GroupManager } from "./group-manager";
 import { ThemeToggle } from "../ui/theme-toggle";
-
+import { AddContentDialog } from "./add-content-dialog";
+import { useContentStore } from "@/hooks/use-content-store";
+import { Button } from "../ui/button";
 
 export function DashboardSidebarContent() {
   const pathname = usePathname();
+  const { activeGroupId } = useContentStore();
 
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Panel" },
@@ -25,7 +27,7 @@ export function DashboardSidebarContent() {
   ];
 
   return (
-    <Sidebar>
+    <>
         <SidebarHeader>
              <Link
                 href="/dashboard"
@@ -37,8 +39,26 @@ export function DashboardSidebarContent() {
         </SidebarHeader>
 
         <SidebarContent className="p-2">
-            <GroupManager />
             <SidebarMenu>
+                <SidebarMenuItem>
+                    <GroupManager />
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <AddContentDialog 
+                        trigger={
+                            <Button variant="ghost" className="w-full justify-start gap-2" disabled={!activeGroupId}>
+                                <Plus className="h-4 w-4" />
+                                <span>Agregar Contenido</span>
+                            </Button>
+                        }
+                        defaultGroupId={activeGroupId!}
+                    />
+                 </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarContent>
+
+        <SidebarFooter className="p-2">
+             <SidebarMenu>
                 {navItems.map((item) => (
                      <SidebarMenuItem key={item.href}>
                         <Link href={item.href} className="w-full">
@@ -46,24 +66,19 @@ export function DashboardSidebarContent() {
                             isActive={pathname === item.href}
                             tooltip={{children: item.label}}
                             >
-                            <item.icon className="h-4 w-4" />
+                            <item.icon />
                             <span>{item.label}</span>
                             </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
                 ))}
-            </SidebarMenu>
-        </SidebarContent>
-
-        <SidebarFooter className="p-2">
-             <SidebarMenu>
-                <SidebarMenuItem>
+                 <SidebarMenuItem>
                     <Link href="/dashboard/settings">
                         <SidebarMenuButton 
                             isActive={pathname === '/dashboard/settings'}
                             tooltip={{children: 'Ajustes'}}
                         >
-                            <Settings className="h-4 w-4" />
+                            <Settings />
                             <span>Ajustes</span>
                         </SidebarMenuButton>
                     </Link>
@@ -73,6 +88,6 @@ export function DashboardSidebarContent() {
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarFooter>
-    </Sidebar>
+    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useContentStore } from "@/hooks/use-content-store";
 import { Input } from "@/components/ui/input";
-import { Search, ListFilter, PlusCircle, FileText, Link, ImageIcon, ListTodo } from "lucide-react";
+import { Search, ListFilter, PlusCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { SortOrder, ContentItemType } from "@/lib/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
@@ -24,27 +24,27 @@ export function ContentToolbar() {
     const activeGroup = appData.groups.find(g => g.id === activeGroupId);
 
     const sortOptions: { value: SortOrder, label: string}[] = [
-        { value: 'createdAt_desc', label: 'Más recientes primero' },
-        { value: 'createdAt_asc', label: 'Más antiguos primero' },
+        { value: 'createdAt_desc', label: 'Más recientes' },
+        { value: 'createdAt_asc', label: 'Más antiguos' },
         { value: 'accessCount_desc', label: 'Más visitados' },
         { value: 'title_asc', label: 'Título (A-Z)' },
     ];
     
-    const filterOptions: { value: ContentItemType, label: string, icon: React.FC<any>}[] = [
-        { value: 'note', label: 'Notas', icon: FileText },
-        { value: 'link', label: 'Enlaces', icon: Link },
-        { value: 'image', label: 'Imágenes', icon: ImageIcon },
-        { value: 'todo', label: 'Tareas', icon: ListTodo },
+    const filterOptions: { value: ContentItemType, label: string}[] = [
+        { value: 'note', label: 'Notas' },
+        { value: 'link', label: 'Enlaces' },
+        { value: 'image', label: 'Imágenes' },
+        { value: 'todo', label: 'Tareas' },
     ];
 
     return (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
              <div className="flex-1">
                 <h1 className="text-2xl font-headline font-semibold">
-                    {activeGroup ? activeGroup.name : 'Panel de Contenido'}
+                    {activeGroup ? activeGroup.name : 'Panel'}
                 </h1>
                 <p className="text-muted-foreground text-sm">
-                    {activeGroup ? 'Viendo todo el contenido de este grupo.' : 'Selecciona un grupo para empezar.'}
+                    {activeGroup ? `Viendo ${appData.items.filter(i => i.groupId === activeGroupId).length} elemento(s).` : 'Selecciona un grupo para empezar.'}
                 </p>
              </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
@@ -52,7 +52,7 @@ export function ContentToolbar() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Buscar en el grupo..."
+                        placeholder="Buscar contenido..."
                         value={searchQuery}
                         className="w-full rounded-md bg-secondary pl-9"
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -69,7 +69,7 @@ export function ContentToolbar() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuRadioGroup value={filterByType || 'all'} onValueChange={(v) => setFilterByType(v === 'all' ? null : v as ContentItemType)}>
-                                <DropdownMenuRadioItem value="all">Todos los tipos</DropdownMenuRadioItem>
+                                <DropdownMenuRadioItem value="all">Todos</DropdownMenuRadioItem>
                                 {filterOptions.map(opt => (
                                     <DropdownMenuRadioItem key={opt.value} value={opt.value}>{opt.label}</DropdownMenuRadioItem>
                                 ))}
@@ -78,7 +78,7 @@ export function ContentToolbar() {
                     </DropdownMenu>
 
                     <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as SortOrder)} disabled={!activeGroupId}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectTrigger className="w-full sm:w-[160px]">
                             <SelectValue placeholder="Ordenar por..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -87,16 +87,6 @@ export function ContentToolbar() {
                             ))}
                         </SelectContent>
                     </Select>
-
-                    <AddContentDialog 
-                        trigger={
-                            <Button variant="default" size="icon" disabled={!activeGroupId}>
-                                <PlusCircle className="h-4 w-4"/>
-                                <span className="sr-only">Agregar Contenido</span>
-                            </Button>
-                        }
-                        defaultGroupId={activeGroupId!}
-                    />
                  </div>
             </div>
         </div>

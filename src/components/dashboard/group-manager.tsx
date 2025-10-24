@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { useContentStore } from "@/hooks/use-content-store";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { cn } from "@/lib/utils";
 
 export function GroupManager() {
   const { appData, activeGroupId, setActiveGroupId, addGroup, updateGroup, deleteGroup } = useContentStore();
@@ -50,7 +51,7 @@ export function GroupManager() {
     }
   };
   
-  const handleItemSelect = (callback: () => void) => {
+  const handleSelect = (callback: () => void) => {
     callback();
     setIsPopoverOpen(false);
   };
@@ -63,16 +64,16 @@ export function GroupManager() {
             variant="ghost"
             role="combobox"
             aria-expanded={isPopoverOpen}
-            className="w-full justify-between"
+            className="w-full justify-start gap-2"
           >
-            <Folder className="mr-2 h-4 w-4" />
+            <Folder />
             <span className="truncate">
                 {activeGroup ? activeGroup.name : "Seleccionar grupo..."}
             </span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[250px] p-0">
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
            <Command>
              <CommandInput placeholder="Buscar o crear..." />
              <CommandList>
@@ -80,46 +81,51 @@ export function GroupManager() {
                 <CommandGroup>
                 {appData.groups.map((group) => (
                     <CommandItem
-                    key={group.id}
-                    value={group.name}
-                    className="flex justify-between items-center"
-                    onSelect={() => handleItemSelect(() => setActiveGroupId(group.id))}
+                        key={group.id}
+                        value={group.name}
+                        onSelect={() => handleSelect(() => setActiveGroupId(group.id))}
+                        className="flex justify-between items-center cursor-pointer"
                     >
-                    <div className="flex items-center">
-                        <Check
-                            className={`mr-2 h-4 w-4 ${activeGroupId === group.id ? "opacity-100" : "opacity-0"}`}
-                        />
-                        <span className="truncate">{group.name}</span>
-                    </div>
-                     {group.id !== "1" && (
-                        <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mr-2">
-                            <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent side="right" sideOffset={8} onSelect={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                            <DropdownMenuItem onSelect={() => { setGroupToRename(group); setIsRenameDialogOpen(true); }}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Renombrar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                            onSelect={() => deleteGroup(group.id)}
-                            className="text-destructive focus:text-destructive"
-                            >
-                            <Trash className="mr-2 h-4 w-4" />
-                            Eliminar
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
+                        <div className="flex items-center flex-1 truncate">
+                            <Check
+                                className={cn("mr-2 h-4 w-4", activeGroupId === group.id ? "opacity-100" : "opacity-0")}
+                            />
+                            <span className="truncate">{group.name}</span>
+                        </div>
+                        {group.id !== "1" && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-6 w-6 shrink-0 -mr-1"
+                                        onClick={(e) => e.stopPropagation()} // Prevent CommandItem onSelect
+                                    >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent side="right" sideOffset={8} onClick={(e) => e.stopPropagation()}>
+                                    <DropdownMenuItem onSelect={() => { setIsRenameDialogOpen(true); setGroupToRename(group); }}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Renombrar
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onSelect={() => deleteGroup(group.id)}
+                                        className="text-destructive focus:text-destructive"
+                                    >
+                                        <Trash className="mr-2 h-4 w-4" />
+                                        Eliminar
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </CommandItem>
                 ))}
                 </CommandGroup>
              </CommandList>
              <DropdownMenuSeparator />
               <CommandGroup>
-                <CommandItem onSelect={() => handleItemSelect(() => setIsAddDialogOpen(true))}>
+                <CommandItem onSelect={() => handleSelect(() => setIsAddDialogOpen(true))} className="cursor-pointer">
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Crear nuevo grupo
                 </CommandItem>
