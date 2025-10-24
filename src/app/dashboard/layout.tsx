@@ -16,14 +16,12 @@ export default function DashboardLayout({
         <Sidebar>
             <DashboardSidebarContent />
         </Sidebar>
-        <div className="flex w-full flex-col bg-background">
+        <SidebarInset>
           <DashboardHeader />
-          <SidebarInset>
-            <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-              {children}
-            </main>
-          </SidebarInset>
-        </div>
+          <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            {children}
+          </main>
+        </SidebarInset>
       </SidebarProvider>
     </ContentStoreProvider>
   );

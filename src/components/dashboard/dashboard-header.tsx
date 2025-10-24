@@ -5,18 +5,13 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Book, PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { useContentStore } from "@/hooks/use-content-store";
-import { CommandPalette } from "./command-palette";
 
 export function DashboardHeader() {
     const { isMobile } = useSidebar();
     const { activeGroupId } = useContentStore();
 
     if (!isMobile) {
-        return (
-            <header className="sticky top-0 z-10 hidden h-16 items-center gap-4 border-b bg-background px-4 md:px-6 md:flex justify-end">
-                {/* El CommandPalette se ha movido a ContentToolbar para unificar la UI */}
-            </header>
-        );
+        return null;
     }
 
     return (
@@ -31,7 +26,7 @@ export function DashboardHeader() {
 
             <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
                  <div className="ml-auto flex-1 sm:flex-initial" />
-                {activeGroupId && <SidebarTrigger variant="ghost" size="icon" className="md:hidden">
+                {activeGroupId && <SidebarTrigger>
                     <PanelLeft className="h-5 w-5" />
                     <span className="sr-only">Toggle Menu</span>
                 </SidebarTrigger>}
