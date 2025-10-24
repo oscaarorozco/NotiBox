@@ -104,7 +104,7 @@ export function StatsView() {
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
                                 <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={10} />
                                 <YAxis tickLine={false} axisLine={false} tickMargin={10} />
-                                <RechartsTooltip content={<ChartTooltipContent />} cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}/>
+                                <ChartTooltip content={<ChartTooltipContent />} cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}/>
                                 <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8, fill: 'hsl(var(--primary))' }} dot={{ r: 4, fill: 'hsl(var(--primary))' }} />
                             </LineChart>
                         </ResponsiveContainer>
@@ -125,7 +125,7 @@ export function StatsView() {
                     <ChartContainer config={contentTypeChartConfig} className="w-full h-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <RechartsTooltip content={<ChartTooltipContent nameKey="name" />} />
+                                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
                                 <Pie data={contentTypeData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={100} labelLine={false} label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
                                   const radius = innerRadius + (outerRadius - innerRadius) * 1.2;
                                   const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
@@ -160,7 +160,7 @@ export function StatsView() {
                             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border) / 0.5)" />
                             <XAxis type="number" dataKey="total" tickLine={false} axisLine={false} />
                             <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} />
-                            <RechartsTooltip cursor={{ fill: 'hsl(var(--accent))' }} content={<ChartTooltipContent />} />
+                            <ChartTooltip cursor={{ fill: 'hsl(var(--accent))' }} content={<ChartTooltipContent />} />
                             <Bar dataKey="total" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={16} />
                         </BarChart>
                         </ResponsiveContainer>
