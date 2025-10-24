@@ -55,7 +55,7 @@ const ImageViewer = ({ item, trigger }: { item: ImageItem, trigger: React.ReactN
 export function ContentCard({ item }: ContentCardProps) {
   const { appData, deleteItem, updateItem, logAccess, moveItem, duplicateItem } = useContentStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const CardIcon = LucideIcons[item.icon as keyof typeof LucideIcons];
+  const CardIcon = item.icon && LucideIcons[item.icon as keyof typeof LucideIcons] ? LucideIcons[item.icon as keyof typeof LucideIcons] : null;
 
 
   const typeTranslations: {[key: string]: string} = {
@@ -85,6 +85,14 @@ export function ContentCard({ item }: ContentCardProps) {
     updateItem({ ...item, tasks: updatedTasks });
   }
 
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (item.type === 'link') {
+        window.open(item.url, '_blank', 'noopener,noreferrer');
+        logAccess(item.id, 'item');
+    }
+  }
+
   const renderContent = () => {
     switch (item.type) {
       case "image":
@@ -111,7 +119,7 @@ export function ContentCard({ item }: ContentCardProps) {
         );
       case "link":
         return (
-          <p className="text-sm text-primary hover:underline truncate">
+          <p onClick={handleLinkClick} className="text-sm text-primary hover:underline truncate cursor-pointer">
             {item.url}
           </p>
         );
@@ -152,19 +160,17 @@ export function ContentCard({ item }: ContentCardProps) {
   
   const handleItemClick = () => {
     logAccess(item.id, 'item');
-    if (item.type === 'link') {
-        window.open(item.url, '_blank', 'noopener,noreferrer');
-    }
     if(item.type === 'image') {
         // The click is handled by the ImageViewer trigger now
         return;
     }
+    // For other types, maybe open a detail view in the future. For now, it just logs.
   }
 
   const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
   
   const cardClasses = cn(
-    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out",
+    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out cursor-pointer",
     {
       'default': 'hover:border-primary/80 hover:shadow-lg hover:shadow-primary/10',
       'highlighted': 'border-primary/50 shadow-md shadow-primary/10',
@@ -188,7 +194,7 @@ export function ContentCard({ item }: ContentCardProps) {
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="p-4 pt-0 cursor-pointer flex-1">
+      <CardContent className="p-4 pt-0 flex-1">
         {renderContent()}
       </CardContent>
 

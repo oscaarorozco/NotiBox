@@ -8,12 +8,11 @@ import {
   CommandItem,
   CommandList,
   CommandInput,
-  CommandSeparator,
 } from "@/components/ui/command";
 import { useContentStore } from "@/hooks/use-content-store";
-import { FileText, Link, ImageIcon, ListTodo, Search, Clock } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Search } from "lucide-react";
 import { Button } from "../ui/button";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { DialogTitle } from "@/components/ui/dialog";
 import { ContentItem } from "@/lib/types";
 
 const typeIcons: { [key: string]: React.ElementType } = {

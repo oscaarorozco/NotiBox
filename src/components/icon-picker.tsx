@@ -17,8 +17,10 @@ export type LucideIcon = keyof typeof LucideIcons;
 
 const iconList = Object.keys(LucideIcons).filter(
   (key) =>
+    typeof LucideIcons[key as keyof typeof LucideIcons] === 'object' &&
     key !== "createLucideIcon" && key !== "icons" && key !== "LucideIcon"
 ) as LucideIcon[];
+
 
 interface IconPickerProps {
   value?: string;
@@ -69,6 +71,7 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
             <div className="grid grid-cols-5 gap-1">
               {filteredIcons.map((iconName) => {
                 const Icon = LucideIcons[iconName];
+                if (!Icon || typeof Icon !== 'object') return null;
                 return (
                   <Button
                     key={iconName}
