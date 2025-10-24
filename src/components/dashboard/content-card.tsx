@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import * as LucideIcons from "lucide-react";
-import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle, FolderSymlink, Copy, Expand } from "lucide-react";
+import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle, FolderSymlink, Copy, Expand, Folder } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -30,8 +30,6 @@ import { Progress } from "../ui/progress";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
@@ -41,10 +39,14 @@ type ContentCardProps = {
   item: ContentItem;
 };
 
-const ImageViewer = ({ item, trigger }: { item: ImageItem, trigger: React.ReactNode }) => {
+const toPascalCase = (str: string) => {
+    return str.replace(/(^\w|-\w)/g, (g) => g.replace(/-/, "").toUpperCase());
+};
+
+const ImageViewer = ({ item, onOpen }: { item: ImageItem, trigger: React.ReactNode, onOpen: () => void }) => {
     return (
         <Dialog>
-            <DialogTrigger asChild onClick={(e) => e.stopPropagation()}>{trigger}</DialogTrigger>
+            <DialogTrigger asChild onClick={(e) => { e.stopPropagation(); onOpen(); }}>{trigger}</DialogTrigger>
             <DialogContent className="max-w-4xl h-[80vh] p-0">
                 <Image src={item.url} alt={item.title} fill className="object-contain p-4"/>
             </DialogContent>
@@ -55,8 +57,9 @@ const ImageViewer = ({ item, trigger }: { item: ImageItem, trigger: React.ReactN
 export function ContentCard({ item }: ContentCardProps) {
   const { appData, deleteItem, updateItem, logAccess, moveItem, duplicateItem } = useContentStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const CardIcon = item.icon && LucideIcons[item.icon as keyof typeof LucideIcons] ? LucideIcons[item.icon as keyof typeof LucideIcons] : null;
-
+  
+  const iconName = item.icon ? toPascalCase(item.icon) : 'Folder';
+  const CardIcon = LucideIcons[iconName as keyof typeof LucideIcons] || Folder;
 
   const typeTranslations: {[key: string]: string} = {
     'note': 'Nota',
@@ -104,7 +107,7 @@ export function ContentCard({ item }: ContentCardProps) {
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
-             <ImageViewer item={item} trigger={
+             <ImageViewer item={item} onOpen={() => logAccess(item.id, 'item')} trigger={
                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                     <Expand className="h-8 w-8 text-white" />
                 </div>
@@ -158,13 +161,10 @@ export function ContentCard({ item }: ContentCardProps) {
     }
   };
   
-  const handleItemClick = () => {
-    logAccess(item.id, 'item');
-    if(item.type === 'image') {
-        // The click is handled by the ImageViewer trigger now
-        return;
-    }
-    // For other types, maybe open a detail view in the future. For now, it just logs.
+  const handleItemClick = (e: React.MouseEvent) => {
+    // Stop propagation to prevent parent handlers, but don't log access here.
+    // Access is logged on more specific actions.
+    e.stopPropagation();
   }
 
   const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
@@ -185,7 +185,7 @@ export function ContentCard({ item }: ContentCardProps) {
     >
       <CardHeader className="p-4 space-y-2">
         <CardTitle className="text-base font-headline tracking-tight truncate pr-16 flex items-center gap-2">
-            {CardIcon && <CardIcon className="h-5 w-5 text-primary" />}
+            <CardIcon className="h-5 w-5 text-primary" />
             <span className="flex-1">{item.title}</span>
         </CardTitle>
         <CardDescription className="flex items-center gap-2 text-xs">
@@ -268,3 +268,5 @@ export function ContentCard({ item }: ContentCardProps) {
     </Card>
   );
 }
+
+    

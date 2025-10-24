@@ -7,6 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { SortOrder } from "@/lib/types";
 import { CommandPalette } from "./command-palette";
 
+const toPascalCase = (str: string) => {
+    return str.replace(/(^\w|-\w)/g, (g) => g.replace(/-/, "").toUpperCase());
+};
+
 export function ContentToolbar() {
     const { 
         activeGroupId, 
@@ -16,7 +20,9 @@ export function ContentToolbar() {
     } = useContentStore();
 
     const activeGroup = appData.groups.find(g => g.id === activeGroupId);
-    const ActiveGroupIcon = LucideIcons[activeGroup?.icon as keyof typeof LucideIcons] || Folder;
+    
+    const iconName = activeGroup?.icon ? toPascalCase(activeGroup.icon) : 'Folder';
+    const ActiveGroupIcon = LucideIcons[iconName as keyof typeof LucideIcons] || Folder;
 
 
     const sortOptions: { value: SortOrder, label: string}[] = [
@@ -56,3 +62,5 @@ export function ContentToolbar() {
         </div>
     );
 }
+
+    

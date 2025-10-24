@@ -29,6 +29,10 @@ import { Label } from "@/components/ui/label";
 import { useContentStore } from "@/hooks/use-content-store";
 import { SidebarMenuButton } from "../ui/sidebar";
 
+const toPascalCase = (str: string) => {
+    return str.replace(/(^\w|-\w)/g, (g) => g.replace(/-/, "").toUpperCase());
+};
+
 export function GroupManager() {
   const { appData, activeGroupId, setActiveGroupId, addGroup, updateGroup, deleteGroup } = useContentStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -38,7 +42,9 @@ export function GroupManager() {
   const [groupToRename, setGroupToRename] = useState<{id: string, name: string, icon?: string} | null>(null);
 
   const activeGroup = appData.groups.find(g => g.id === activeGroupId);
-  const ActiveGroupIcon = activeGroup?.icon && LucideIcons[activeGroup.icon as keyof typeof LucideIcons] ? LucideIcons[activeGroup.icon as keyof typeof LucideIcons] : Folder;
+  const iconName = activeGroup?.icon ? toPascalCase(activeGroup.icon) : 'Folder';
+  const ActiveGroupIcon = LucideIcons[iconName as keyof typeof LucideIcons] || Folder;
+
 
   const handleAddGroup = () => {
     if (newGroupName.trim()) {
@@ -75,7 +81,8 @@ export function GroupManager() {
             <DropdownMenuLabel>Seleccionar Grupo</DropdownMenuLabel>
             <DropdownMenuRadioGroup value={activeGroupId || ""} onValueChange={setActiveGroupId}>
                 {appData.groups.map(group => {
-                   const GroupIcon = group.icon && LucideIcons[group.icon as keyof typeof LucideIcons] ? LucideIcons[group.icon as keyof typeof LucideIcons] : Folder;
+                   const groupIconName = group.icon ? toPascalCase(group.icon) : 'Folder';
+                   const GroupIcon = LucideIcons[groupIconName as keyof typeof LucideIcons] || Folder;
                    return (
                     <DropdownMenuRadioItem key={group.id} value={group.id} className="truncate pr-8 flex items-center gap-2">
                        <GroupIcon className="h-4 w-4 text-muted-foreground" />
@@ -170,3 +177,5 @@ export function GroupManager() {
     </>
   );
 }
+
+    
