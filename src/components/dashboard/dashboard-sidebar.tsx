@@ -15,6 +15,7 @@ import { GroupManager } from "./group-manager";
 import { AddContentDialog } from "./add-content-dialog";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { Separator } from "../ui/separator";
+import { Button } from "@/components/ui/button";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
