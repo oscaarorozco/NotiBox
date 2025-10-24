@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import * as LucideIcons from "lucide-react";
-import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle, FolderSymlink, Copy, Expand, Folder } from "lucide-react";
+import { Link as LinkIcon, FileText, ImageIcon, ListTodo, Edit, Trash2, Eye, CheckCircle, Circle, FolderSymlink, Copy, Expand, Folder, MoreHorizontal } from "lucide-react";
 import {
   Card,
   CardContent,
