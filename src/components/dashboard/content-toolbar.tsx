@@ -1,18 +1,16 @@
 "use client";
 
 import { useContentStore } from "@/hooks/use-content-store";
-import { Input } from "@/components/ui/input";
-import { Search, ListFilter, PlusCircle } from "lucide-react";
+import { ListFilter, PlusCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { SortOrder, ContentItemType } from "@/lib/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { AddContentDialog } from "./add-content-dialog";
+import { CommandPalette } from "./command-palette";
 
 export function ContentToolbar() {
     const { 
-        searchQuery, 
-        setSearchQuery,
         activeGroupId, 
         appData,
         sortOrder,
@@ -48,18 +46,10 @@ export function ContentToolbar() {
                 </p>
              </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        type="search"
-                        placeholder="Buscar contenido..."
-                        value={searchQuery}
-                        className="w-full rounded-md bg-secondary pl-9"
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        disabled={!activeGroupId}
-                    />
-                </div>
-                 <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                    <div className="md:hidden w-full">
+                      <CommandPalette />
+                    </div>
                     <AddContentDialog 
                         trigger={
                             <Button className="w-full sm:w-auto" disabled={!activeGroupId}>

@@ -4,6 +4,7 @@ import { ContentStoreProvider } from "@/hooks/use-content-store";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebarContent } from "@/components/dashboard/dashboard-sidebar-content";
+import { CommandPalette } from "@/components/dashboard/command-palette";
 
 export default function DashboardLayout({
   children,
@@ -12,6 +13,7 @@ export default function DashboardLayout({
 }) {
   return (
     <ContentStoreProvider>
+      <CommandPalette />
       <SidebarProvider>
         <Sidebar>
             <DashboardSidebarContent />
