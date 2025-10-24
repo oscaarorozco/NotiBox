@@ -24,8 +24,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
-import { Card } from "../ui/card";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, BrainCircuit } from "lucide-react";
+import { Card, CardContent } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
 import { IconPicker } from "../icon-picker";
 
