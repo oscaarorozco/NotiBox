@@ -102,7 +102,7 @@ export function ContentList() {
             const ItemIcon = LucideIcons[iconName as keyof typeof LucideIcons] || Folder;
             const TypeIcon = typeIcons[item.type];
             return (
-              <TableRow key={item.id}>
+              <TableRow key={item.id} className="animate-slide-up-and-fade">
                 <TableCell>
                   <ItemIcon className="h-5 w-5 text-primary" />
                 </TableCell>

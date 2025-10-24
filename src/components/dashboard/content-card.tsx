@@ -173,7 +173,7 @@ export function ContentCard({ item }: ContentCardProps) {
   const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
   
   const cardClasses = cn(
-    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out",
+    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out animate-slide-up-and-fade",
     {
       'default': 'hover:border-primary/80 hover:shadow-lg hover:shadow-primary/10',
       'highlighted': 'border-primary/50 shadow-md shadow-primary/10',
