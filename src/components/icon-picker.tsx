@@ -24,20 +24,28 @@ interface IconPickerProps {
 export function IconPicker({ value, onChange, className }: IconPickerProps) {
   const [search, setSearch] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(false);
+  const [iconList, setIconList] = React.useState<LucideIcon[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const iconList = React.useMemo(() => Object.keys(LucideIcons).filter(
+  React.useEffect(() => {
+    // Dynamically load icons to avoid issues with SSR/bundling
+    const icons = Object.keys(LucideIcons).filter(
       (key) =>
         typeof LucideIcons[key as keyof typeof LucideIcons] === 'object' &&
         key !== "createLucideIcon" && key !== "icons" && key !== "LucideIcon"
-    ) as LucideIcon[], []);
+    ) as LucideIcon[];
+    setIconList(icons);
+    setIsLoading(false);
+  }, []);
+
 
   const filteredIcons = React.useMemo(() => {
-    if (!iconList) return [];
+    if (isLoading || !iconList) return [];
     if (!search) return iconList;
     return iconList.filter((icon) =>
       icon.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search, iconList]);
+  }, [search, iconList, isLoading]);
 
   const SelectedIcon = value ? LucideIcons[value as LucideIcon] : null;
 
@@ -47,8 +55,11 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
         <Button
           variant="outline"
           className={cn("w-full justify-start gap-2", className)}
+          disabled={isLoading}
         >
-          {SelectedIcon ? (
+          {isLoading ? (
+            <span>Cargando iconos...</span>
+          ) : SelectedIcon ? (
             <>
               <SelectedIcon className="h-4 w-4" />
               <span>{value}</span>
@@ -68,7 +79,7 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
           />
           <ScrollArea className="h-48">
             <div className="grid grid-cols-5 gap-1">
-              {filteredIcons && filteredIcons.map((iconName) => {
+              {filteredIcons.map((iconName) => {
                 const Icon = LucideIcons[iconName];
                 if (!Icon || typeof Icon !== 'object') return null;
                 return (
