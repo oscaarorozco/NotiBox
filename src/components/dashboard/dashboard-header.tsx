@@ -35,11 +35,9 @@ export function DashboardHeader() {
                    <CommandPalette />
                 </div>
                 <ThemeToggle />
-                {activeGroupId && <SidebarTrigger asChild>
-                    <Button variant="ghost" size="icon" className="md:hidden">
-                        <PanelLeft className="h-5 w-5" />
-                        <span className="sr-only">Toggle Menu</span>
-                    </Button>
+                {activeGroupId && <SidebarTrigger variant="ghost" size="icon" className="md:hidden">
+                    <PanelLeft className="h-5 w-5" />
+                    <span className="sr-only">Toggle Menu</span>
                 </SidebarTrigger>}
             </div>
         </header>
