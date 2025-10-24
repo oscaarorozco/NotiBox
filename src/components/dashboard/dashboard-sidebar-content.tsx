@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Book, LayoutDashboard, LineChart, Settings, PlusCircle, Folder } from "lucide-react";
+import { Book, LayoutDashboard, LineChart, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
   Sidebar,
@@ -12,18 +12,12 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
 import { GroupManager } from "./group-manager";
-import { AddContentDialog } from "./add-content-dialog";
 import { ThemeToggle } from "../ui/theme-toggle";
-import { Separator } from "../ui/separator";
-import { Button } from "@/components/ui/button";
-import { useContentStore } from "@/hooks/use-content-store";
 
 
 export function DashboardSidebarContent() {
   const pathname = usePathname();
-  const { activeGroupId } = useContentStore();
 
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Panel" },
@@ -43,30 +37,17 @@ export function DashboardSidebarContent() {
         </SidebarHeader>
 
         <SidebarContent className="p-2">
-            <div className="flex flex-col gap-2">
-                 <AddContentDialog 
-                    trigger={
-                        <Button variant="default" className="w-full justify-start" disabled={!activeGroupId}>
-                            <PlusCircle className="mr-2 h-4 w-4"/>
-                            Agregar Contenido
-                        </Button>
-                    }
-                    defaultGroupId={activeGroupId!}
-                 />
-                 <GroupManager />
-            </div>
-
-            <Separator className="my-4" />
-
+            <GroupManager />
             <SidebarMenu>
                 {navItems.map((item) => (
                      <SidebarMenuItem key={item.href}>
                         <Link href={item.href} className="w-full">
                             <SidebarMenuButton
                             isActive={pathname === item.href}
+                            tooltip={{children: item.label}}
                             >
                             <item.icon className="h-4 w-4" />
-                            {item.label}
+                            <span>{item.label}</span>
                             </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
@@ -78,15 +59,18 @@ export function DashboardSidebarContent() {
              <SidebarMenu>
                 <SidebarMenuItem>
                     <Link href="/dashboard/settings">
-                        <SidebarMenuButton isActive={pathname === '/dashboard/settings'}>
+                        <SidebarMenuButton 
+                            isActive={pathname === '/dashboard/settings'}
+                            tooltip={{children: 'Ajustes'}}
+                        >
                             <Settings className="h-4 w-4" />
-                            Ajustes
+                            <span>Ajustes</span>
                         </SidebarMenuButton>
                     </Link>
                 </SidebarMenuItem>
-                <div className="flex items-center justify-center p-2">
+                <SidebarMenuItem>
                      <ThemeToggle />
-                </div>
+                </SidebarMenuItem>
             </SidebarMenu>
         </SidebarFooter>
     </Sidebar>

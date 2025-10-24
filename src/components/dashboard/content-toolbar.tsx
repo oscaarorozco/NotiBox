@@ -2,11 +2,12 @@
 
 import { useContentStore } from "@/hooks/use-content-store";
 import { Input } from "@/components/ui/input";
-import { Search, ListFilter, FileText, Link, ImageIcon, ListTodo } from "lucide-react";
+import { Search, ListFilter, PlusCircle, FileText, Link, ImageIcon, ListTodo } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { SortOrder, ContentItemType } from "@/lib/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
+import { AddContentDialog } from "./add-content-dialog";
 
 export function ContentToolbar() {
     const { 
@@ -61,7 +62,7 @@ export function ContentToolbar() {
                  <div className="flex items-center gap-2">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-full sm:w-auto">
+                            <Button variant="outline" className="w-full sm:w-auto" disabled={!activeGroupId}>
                                 <ListFilter className="mr-2 h-4 w-4"/>
                                 Filtrar
                             </Button>
@@ -86,6 +87,16 @@ export function ContentToolbar() {
                             ))}
                         </SelectContent>
                     </Select>
+
+                    <AddContentDialog 
+                        trigger={
+                            <Button variant="default" size="icon" disabled={!activeGroupId}>
+                                <PlusCircle className="h-4 w-4"/>
+                                <span className="sr-only">Agregar Contenido</span>
+                            </Button>
+                        }
+                        defaultGroupId={activeGroupId!}
+                    />
                  </div>
             </div>
         </div>

@@ -49,6 +49,11 @@ export function GroupManager() {
       setIsRenameDialogOpen(false);
     }
   };
+  
+  const handleItemSelect = (callback: () => void) => {
+    callback();
+    setIsPopoverOpen(false);
+  };
 
   return (
     <>
@@ -78,10 +83,7 @@ export function GroupManager() {
                     key={group.id}
                     value={group.name}
                     className="flex justify-between items-center"
-                    onSelect={() => {
-                        setActiveGroupId(group.id);
-                        setIsPopoverOpen(false);
-                    }}
+                    onSelect={() => handleItemSelect(() => setActiveGroupId(group.id))}
                     >
                     <div className="flex items-center">
                         <Check
@@ -91,18 +93,18 @@ export function GroupManager() {
                     </div>
                      {group.id !== "1" && (
                         <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                        <DropdownMenuTrigger asChild onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                             <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mr-2">
                             <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent side="right" sideOffset={8} onClick={e => e.stopPropagation()}>
-                            <DropdownMenuItem onClick={() => { setGroupToRename(group); setIsRenameDialogOpen(true); }}>
+                        <DropdownMenuContent side="right" sideOffset={8} onSelect={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                            <DropdownMenuItem onSelect={() => { setGroupToRename(group); setIsRenameDialogOpen(true); }}>
                             <Edit className="mr-2 h-4 w-4" />
                             Renombrar
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                            onClick={() => deleteGroup(group.id)}
+                            onSelect={() => deleteGroup(group.id)}
                             className="text-destructive focus:text-destructive"
                             >
                             <Trash className="mr-2 h-4 w-4" />
@@ -117,10 +119,7 @@ export function GroupManager() {
              </CommandList>
              <DropdownMenuSeparator />
               <CommandGroup>
-                <CommandItem onSelect={() => {
-                  setIsPopoverOpen(false);
-                  setIsAddDialogOpen(true);
-                }}>
+                <CommandItem onSelect={() => handleItemSelect(() => setIsAddDialogOpen(true))}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Crear nuevo grupo
                 </CommandItem>
