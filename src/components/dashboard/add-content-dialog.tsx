@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, ReactNode } from "react";
+import { useState, useRef, ReactNode, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -36,20 +36,22 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
   
   const isEditing = !!itemToEdit;
   
-  const [title, setTitle] = useState(itemToEdit?.title || "");
-  const [type, setType] = useState<ContentItemType>(itemToEdit?.type || "note");
-  const [content, setContent] = useState(itemToEdit?.type === 'note' ? itemToEdit.content : "");
-  const [url, setUrl] = useState(itemToEdit?.type === 'link' || itemToEdit?.type === 'image' ? itemToEdit.url : "");
-  const [tags, setTags] = useState(itemToEdit?.tags.join(", ") || "");
+  const [type, setType] = useState<ContentItemType>("note");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [url, setUrl] = useState("");
+  const [tags, setTags] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const resetForm = () => {
-    setTitle(itemToEdit?.title || "");
-    setType(itemToEdit?.type || "note");
-    setContent(itemToEdit?.type === 'note' ? itemToEdit.content : "");
-    setUrl(itemToEdit?.type === 'link' || itemToEdit?.type === 'image' ? itemToEdit.url : "");
-    setTags(itemToEdit?.tags.join(", ") || "");
-  };
+  useEffect(() => {
+    if (isOpen) {
+        setTitle(itemToEdit?.title || "");
+        setType(itemToEdit?.type || "note");
+        setContent(itemToEdit?.type === 'note' ? itemToEdit.content : "");
+        setUrl(itemToEdit?.type === 'link' || itemToEdit?.type === 'image' ? itemToEdit.url : "");
+        setTags(itemToEdit?.tags.join(", ") || "");
+    }
+  }, [isOpen, itemToEdit])
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,21 +114,14 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
     setIsOpen(false);
   };
   
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-        resetForm();
-    }
-  }
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Contenido' : 'Agregar Nuevo Contenido'}</DialogTitle>
           <DialogDescription>
-            Rellena los detalles de tu nuevo elemento de contenido.
+            Rellena los detalles para tu nuevo elemento de contenido.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -165,7 +160,7 @@ export function AddContentDialog({ trigger, itemToEdit }: AddContentDialogProps)
               <div className="col-span-3 grid gap-2">
                 <Input id="image-file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
                 <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste}/>
-                {url && <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain" />}
+                {url && <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />}
               </div>
             </div>
           )}

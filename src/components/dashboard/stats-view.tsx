@@ -47,8 +47,8 @@ export function StatsView() {
 
   const weeklyActivityData = useMemo(() => {
     const today = new Date();
-    const last7Days = eachDayOfInterval({ start: subDays(today, 6), end: today });
-    const activityMap = last7Days.reduce((acc, day) => {
+    const last30Days = eachDayOfInterval({ start: subDays(today, 29), end: today });
+    const activityMap = last30Days.reduce((acc, day) => {
         acc[format(day, 'yyyy-MM-dd')] = 0;
         return acc;
     }, {} as Record<string, number>);
@@ -67,39 +67,48 @@ export function StatsView() {
   }, [appData.stats]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-12">
+        <Card className="lg:col-span-8">
             <CardHeader>
-                <CardTitle>Uso de Grupos</CardTitle>
-                <CardDescription>Número de veces que se ha accedido a cada grupo.</CardDescription>
+                <CardTitle>Actividad Mensual</CardTitle>
+                <CardDescription>Tu interacción con la app en los últimos 30 días.</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={{}} className="h-[300px] w-full">
+                 <ChartContainer config={{}} className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={groupUsageData} layout="vertical" margin={{ left: 10, right: 30 }}>
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                        <XAxis type="number" />
-                        <YAxis dataKey="name" type="category" width={80} tickLine={false} axisLine={false} />
-                        <RechartsTooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
-                        <Bar dataKey="total" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                    </BarChart>
+                        <LineChart data={weeklyActivityData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
+                            <XAxis dataKey="date" tickLine={false} axisLine={false} />
+                            <YAxis tickLine={false} axisLine={false} />
+                            <RechartsTooltip content={<ChartTooltipContent />} cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}/>
+                            <Line type="monotone" dataKey="count" name="Interacciones" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8, fill: 'hsl(var(--primary))' }} dot={{ r: 4, fill: 'hsl(var(--primary))' }} />
+                        </LineChart>
                     </ResponsiveContainer>
                 </ChartContainer>
             </CardContent>
         </Card>
-        <Card className="col-span-3">
+        <Card className="lg:col-span-4">
             <CardHeader>
                 <CardTitle>Tipos de Contenido</CardTitle>
                 <CardDescription>Distribución de tu contenido guardado.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <ChartContainer config={{}} className="h-[300px] w-full">
+                 <ChartContainer config={{}} className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <RechartsTooltip content={<ChartTooltipContent nameKey="name" />} />
-                            <Pie data={contentTypeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                            <Pie data={contentTypeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} labelLine={false} label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                              const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                              const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
+                              const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
+                              return (
+                                <text x={x} y={y} fill="hsl(var(--primary-foreground))" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+                                  {`${(percent * 100).toFixed(0)}%`}
+                                </text>
+                              );
+                            }}>
                                 {contentTypeData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="hsl(var(--background))" />
                                 ))}
                             </Pie>
                             <ChartLegend content={<ChartLegendContent />} />
@@ -108,21 +117,21 @@ export function StatsView() {
                 </ChartContainer>
             </CardContent>
         </Card>
-        <Card className="col-span-full">
+        <Card className="lg:col-span-full">
             <CardHeader>
-                <CardTitle>Actividad Semanal</CardTitle>
-                <CardDescription>Tu interacción con la app en los últimos 7 días.</CardDescription>
+                <CardTitle>Uso de Grupos</CardTitle>
+                <CardDescription>Número de veces que se ha accedido a cada grupo.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <ChartContainer config={{}} className="h-[300px] w-full">
+                <ChartContainer config={{}} className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={weeklyActivityData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis />
-                            <RechartsTooltip content={<ChartTooltipContent />} />
-                            <Line type="monotone" dataKey="count" name="Interacciones" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8 }} />
-                        </LineChart>
+                    <BarChart data={groupUsageData} layout="vertical" margin={{ left: 20, right: 30, top: 10, bottom: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border) / 0.5)" />
+                        <XAxis type="number" dataKey="total" tickLine={false} axisLine={false} />
+                        <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} />
+                        <RechartsTooltip cursor={{ fill: 'hsl(var(--accent))' }} content={<ChartTooltipContent />} />
+                        <Bar dataKey="total" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={20} />
+                    </BarChart>
                     </ResponsiveContainer>
                 </ChartContainer>
             </CardContent>

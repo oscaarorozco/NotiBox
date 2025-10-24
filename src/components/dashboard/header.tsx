@@ -7,6 +7,7 @@ import {
   PanelLeft,
   Search,
   Settings,
+  Folder,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,11 +35,13 @@ export function Header() {
     'stats': 'Estadísticas',
     'settings': 'Ajustes',
   }
-  const pageName = pageTranslations[pathname.split("/").pop() || 'dashboard'] || "Panel";
-
+  
+  const pathParts = pathname.split("/").filter(Boolean);
+  const currentPage = pathParts[pathParts.length - 1] || 'dashboard';
+  const pageName = pageTranslations[currentPage] || "Panel";
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border/80 bg-background/80 px-4 backdrop-blur-sm sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
       <Sheet>
         <SheetTrigger asChild>
           <Button size="icon" variant="outline" className="sm:hidden">
@@ -95,12 +98,15 @@ export function Header() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard">Panel</Link>
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <Folder className="h-4 w-4"/>
+                Panel
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className="capitalize font-headline">
+            <BreadcrumbPage className="capitalize font-headline text-foreground">
               {pageName}
             </BreadcrumbPage>
           </BreadcrumbItem>
@@ -108,15 +114,15 @@ export function Header() {
       </Breadcrumb>
       <div className="relative ml-auto flex-1 md:grow-0">
         {pathname === "/dashboard" && (
-          <>
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Buscar contenido..."
-              className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
+              className="w-full rounded-full bg-secondary pl-9 md:w-[200px] lg:w-[330px]"
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </>
+          </div>
         )}
       </div>
       <ThemeToggle />
