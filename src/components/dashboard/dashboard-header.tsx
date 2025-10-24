@@ -1,7 +1,6 @@
 "use client";
 
 import { useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Book, PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { useContentStore } from "@/hooks/use-content-store";

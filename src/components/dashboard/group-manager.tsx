@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Edit, Trash, PlusCircle, Folder } from "lucide-react";
+import { Edit, Trash, PlusCircle, Folder, Circle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,15 +58,16 @@ export function GroupManager() {
         <DropdownMenuTrigger asChild>
             <SidebarMenuButton tooltip={{ children: 'Gestionar Grupos' }}>
                 <Folder />
-                <span>Grupos</span>
+                <span>{activeGroup?.name || "Grupos"}</span>
             </SidebarMenuButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" side="bottom" align="start" sideOffset={5}>
             <DropdownMenuLabel>Seleccionar Grupo</DropdownMenuLabel>
             <DropdownMenuRadioGroup value={activeGroupId || ""} onValueChange={setActiveGroupId}>
                 {appData.groups.map(group => (
-                    <DropdownMenuRadioItem key={group.id} value={group.id} className="truncate">
-                        {group.name}
+                    <DropdownMenuRadioItem key={group.id} value={group.id} className="truncate pr-8">
+                       <span className="flex-1">{group.name}</span>
+                       {activeGroupId === group.id && <Circle className="h-2 w-2 fill-primary text-primary ml-auto" />}
                     </DropdownMenuRadioItem>
                 ))}
             </DropdownMenuRadioGroup>

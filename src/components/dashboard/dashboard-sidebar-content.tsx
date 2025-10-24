@@ -12,7 +12,6 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { GroupManager } from "./group-manager";
-import { ThemeToggle } from "../ui/theme-toggle";
 import { AddContentDialog } from "./add-content-dialog";
 import { useContentStore } from "@/hooks/use-content-store";
 
@@ -82,9 +81,6 @@ export function DashboardSidebarContent() {
                             <span>Ajustes</span>
                         </SidebarMenuButton>
                     </Link>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                     <ThemeToggle />
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarFooter>
