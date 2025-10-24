@@ -35,6 +35,8 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type ContentCardProps = {
   item: ContentItem;
@@ -120,9 +122,9 @@ export function ContentCard({ item }: ContentCardProps) {
         );
       case "note":
         return (
-          <p className="text-sm text-muted-foreground line-clamp-3">
-            {item.content}
-          </p>
+          <div className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-h-36 overflow-hidden">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{item.content}</ReactMarkdown>
+          </div>
         );
       case "link":
         return (

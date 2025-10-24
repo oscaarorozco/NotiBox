@@ -27,6 +27,7 @@ import { readFileAsDataURL, cn } from "@/lib/utils";
 import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MarkdownEditor } from "./markdown-editor";
 
 
 type AddContentDialogProps = {
@@ -160,12 +161,12 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     setIsOpen(false);
   };
   
-  const FormFieldWrapper = ({ label, htmlFor, children }: { label: string, htmlFor: string, children: ReactNode }) => (
-    <div className="grid grid-cols-1 sm:grid-cols-4 items-start gap-2 sm:gap-4">
+  const FormFieldWrapper = ({ label, htmlFor, children, fullWidth = false }: { label: string, htmlFor: string, children: ReactNode, fullWidth?: boolean }) => (
+    <div className={cn("grid grid-cols-1 sm:grid-cols-4 items-start gap-2 sm:gap-4", fullWidth && "sm:grid-cols-1")}>
       <Label htmlFor={htmlFor} className="text-left sm:text-right sm:pt-2">
         {label}
       </Label>
-      <div className="col-span-1 sm:col-span-3">{children}</div>
+      <div className={cn("col-span-1", fullWidth ? "sm:col-span-1" : "sm:col-span-3")}>{children}</div>
     </div>
   );
   
@@ -184,8 +185,8 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </FormFieldWrapper>
 
                 {type === "note" && (
-                    <FormFieldWrapper label="Contenido" htmlFor="content">
-                        <Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} className="min-h-32" />
+                    <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
+                        <MarkdownEditor value={content} onChange={setContent} />
                     </FormFieldWrapper>
                 )}
                 {type === "link" && (
