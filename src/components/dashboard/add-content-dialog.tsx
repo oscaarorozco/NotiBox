@@ -149,43 +149,25 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement;
-    const formElements = form.elements as typeof form.elements & {
-      title: { value: string };
-      content: { value: string };
-      url: { value: string };
-      tags: { value: string };
-      icon: { value: string };
-    };
-
-    const currentTitle = formElements.title.value;
+    
     const targetGroupId = isEditingItem ? itemToEdit!.groupId : (activeGroupId || defaultGroupId);
-    if (!currentTitle || !targetGroupId) return;
-
-    const finalFormData = {
-        ...formData,
-        title: currentTitle,
-        content: formElements.content?.value || '',
-        url: formElements.url?.value || formData.url, // Keep dataURL from file uploads
-        tags: formElements.tags.value,
-        icon: formElements.icon.value,
-    };
+    if (!formData.title || !targetGroupId) return;
 
     const commonData = {
-      title: finalFormData.title,
-      icon: finalFormData.icon,
-      aspect: finalFormData.aspect,
-      tags: finalFormData.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      title: formData.title,
+      icon: formData.icon,
+      aspect: formData.aspect,
+      tags: formData.tags.split(",").map((t) => t.trim()).filter(Boolean),
       groupId: targetGroupId,
     };
     
     let itemData;
 
     switch (selectedType) {
-      case 'note': itemData = { ...commonData, type: 'note', content: finalFormData.content }; break;
-      case 'link': itemData = { ...commonData, type: 'link', url: finalFormData.url }; break;
-      case 'image': itemData = { ...commonData, type: 'image', url: finalFormData.url }; break;
-      case 'todo': itemData = { ...commonData, type: 'todo', tasks: finalFormData.tasks }; break;
+      case 'note': itemData = { ...commonData, type: 'note', content: formData.content }; break;
+      case 'link': itemData = { ...commonData, type: 'link', url: formData.url }; break;
+      case 'image': itemData = { ...commonData, type: 'image', url: formData.url }; break;
+      case 'todo': itemData = { ...commonData, type: 'todo', tasks: formData.tasks }; break;
       default: return;
     }
     
@@ -219,24 +201,24 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 space-y-4">
                     <FormFieldWrapper label="Título" htmlFor="title">
-                        <Input id="title" name="title" defaultValue={formData.title} />
+                        <Input id="title" name="title" value={formData.title} onChange={(e) => handleInputChange('title', e.target.value)} />
                     </FormFieldWrapper>
 
                     {selectedType === "note" && (
                     <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
-                        <Textarea id="content" name="content" defaultValue={formData.content} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
+                        <Textarea id="content" name="content" value={formData.content} onChange={(e) => handleInputChange('content', e.target.value)} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
                     </FormFieldWrapper>
                     )}
                     {selectedType === "link" && (
                         <FormFieldWrapper label="URL" htmlFor="url">
-                            <Input id="url" name="url" defaultValue={formData.url} />
+                            <Input id="url" name="url" value={formData.url} onChange={(e) => handleInputChange('url', e.target.value)} />
                         </FormFieldWrapper>
                     )}
                     {selectedType === "image" && (
                         <FormFieldWrapper label="Imagen" htmlFor="image-file">
                             <div className="grid gap-2">
                                 <Input id="image-file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
-                                <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste}/>
+                                <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste} value={formData.url ? 'Imagen cargada. Pega otra para reemplazarla.' : ''} readOnly={!!formData.url}/>
                                 {formData.url && <img src={formData.url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />}
                             </div>
                         </FormFieldWrapper>
@@ -245,7 +227,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                         <FormFieldWrapper label="Tareas" htmlFor="new-task-input">
                             <div className="space-y-3">
                                 <div className="flex gap-2">
-                                    <Input id="new-task-input" placeholder="Nueva tarea..." value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddTask()} />
+                                    <Input id="new-task-input" placeholder="Nueva tarea..." value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTask(); } }}/>
                                     <Button type="button" size="icon" onClick={handleAddTask}><Plus className="h-4 w-4" /></Button>
                                 </div>
                                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
@@ -263,7 +245,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                         </FormFieldWrapper>
                     )}
                     <FormFieldWrapper label="Etiquetas" htmlFor="tags">
-                        <Input id="tags" name="tags" defaultValue={formData.tags} placeholder="Etiquetas separadas por comas" />
+                        <Input id="tags" name="tags" value={formData.tags} onChange={(e) => handleInputChange('tags', e.target.value)} placeholder="Etiquetas separadas por comas" />
                     </FormFieldWrapper>
                 </AccordionContent>
             </AccordionItem>
@@ -276,11 +258,11 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 space-y-4">
                     <FormFieldWrapper label="Icono" htmlFor="icon-name">
-                        <Input id="icon" name="icon" defaultValue={formData.icon || ''} placeholder="Ej: folder, home, lightbulb" />
+                        <Input id="icon" name="icon" value={formData.icon || ''} onChange={(e) => handleInputChange('icon', e.target.value)} placeholder="Ej: folder, home, lightbulb" />
                     </FormFieldWrapper>
 
                     <FormFieldWrapper label="Aspecto" htmlFor="aspect-default">
-                        <RadioGroup defaultValue={formData.aspect} onValueChange={(v) => handleInputChange('aspect', v as CardAspect)} className="flex flex-col sm:flex-row gap-4">
+                        <RadioGroup value={formData.aspect} onValueChange={(v) => handleInputChange('aspect', v as CardAspect)} className="flex flex-col sm:flex-row gap-4">
                             <div>
                                 <RadioGroupItem value="default" id="aspect-default" className="sr-only"/>
                                 <Label htmlFor="aspect-default">
