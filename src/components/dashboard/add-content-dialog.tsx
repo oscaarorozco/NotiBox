@@ -24,7 +24,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect, TodoItem, NoteItem, LinkItem, ImageItem } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, BrainCircuit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -84,9 +84,8 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [isOpen, setIsOpen] = useState(false);
   const isEditingItem = !!itemToEdit;
   
-  const [formData, setFormData] = useState<FormData>(() => getInitialFormData(itemToEdit));
+  const [formData, setFormData] = useState<FormData>(getInitialFormData(itemToEdit));
   const [selectedType, setSelectedType] = useState<ContentItemType | null>(itemToEdit?.type || null);
-
   const [newTaskText, setNewTaskText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,7 +101,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const handleInputChange = (field: keyof Omit<FormData, 'tasks'>, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
-
+  
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -338,3 +337,5 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     </Dialog>
   );
 }
+
+    
