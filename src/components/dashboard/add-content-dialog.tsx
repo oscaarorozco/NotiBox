@@ -82,7 +82,8 @@ const getInitialFormData = (item?: ContentItem): FormData => {
 export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(!!itemToEdit);
+  const [isEditing, setIsEditing] = useState(false); // Manages if the main form is shown
+  const isEditingItem = !!itemToEdit; // Determines if this is for editing an existing item.
   
   const [formData, setFormData] = useState<FormData>(getInitialFormData(itemToEdit));
   const [newTaskText, setNewTaskText] = useState("");
@@ -90,10 +91,14 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
   useEffect(() => {
     if (isOpen) {
-        const editing = !!itemToEdit;
-        setIsEditing(editing);
-        setFormData(getInitialFormData(editing ? itemToEdit : undefined));
-        setNewTaskText("");
+      if (itemToEdit) {
+        setFormData(getInitialFormData(itemToEdit));
+        setIsEditing(true); // If there's an item to edit, go straight to the form
+      } else {
+        setFormData(getInitialFormData());
+        setIsEditing(false); // Otherwise, show the type selection
+      }
+      setNewTaskText("");
     }
   }, [isOpen, itemToEdit]);
 
@@ -146,7 +151,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   }
 
   const handleSubmit = () => {
-    const targetGroupId = isEditing ? itemToEdit!.groupId : (activeGroupId || defaultGroupId);
+    const targetGroupId = isEditingItem ? itemToEdit!.groupId : (activeGroupId || defaultGroupId);
     if (!formData.title || !targetGroupId) return;
 
     const commonData = {
@@ -167,7 +172,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
       default: return;
     }
     
-    if (isEditing) {
+    if (isEditingItem) {
         updateItem({ ...itemToEdit, ...itemData } as ContentItem);
     } else {
         addItem(itemData as Omit<ContentItem, 'id' | 'createdAt' | 'accessCount' | 'lastAccessed'>);
@@ -200,9 +205,9 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </FormFieldWrapper>
 
                 {formData.type === "note" && (
-                    <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
-                        <Textarea id="content" value={formData.content} onChange={(e) => handleInputChange('content', e.target.value)} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
-                    </FormFieldWrapper>
+                  <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
+                      <Textarea id="content" value={formData.content} onChange={(e) => handleInputChange('content', e.target.value)} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
+                  </FormFieldWrapper>
                 )}
                 {formData.type === "link" && (
                     <FormFieldWrapper label="URL" htmlFor="url">
@@ -303,7 +308,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Contenido' : 'Agregar Nuevo Contenido'}</DialogTitle>
+          <DialogTitle>{isEditingItem ? 'Editar Contenido' : 'Agregar Nuevo Contenido'}</DialogTitle>
           <DialogDescription>
             {isEditing ? 'Modifica los detalles de tu elemento.' : 'Selecciona un tipo de contenido para agregar.'}
           </DialogDescription>
@@ -326,7 +331,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
         <DialogFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-            {isEditing && <Button onClick={handleSubmit}>{itemToEdit ? 'Guardar Cambios' : 'Agregar'}</Button>}
+            {isEditing && <Button onClick={handleSubmit}>{isEditingItem ? 'Guardar Cambios' : 'Agregar'}</Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>
