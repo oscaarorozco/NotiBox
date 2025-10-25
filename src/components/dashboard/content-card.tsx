@@ -35,8 +35,6 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 type ContentCardProps = {
   item: ContentItem;
@@ -62,7 +60,6 @@ const ImageViewer = ({ item, trigger, onOpen }: { item: ImageItem, trigger: Reac
 
 export function ContentCard({ item }: ContentCardProps) {
   const { appData, deleteItem, updateItem, logAccess, moveItem, duplicateItem } = useContentStore();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const iconName = toPascalCase(item.icon || '');
   const CardIcon = LucideIcons[iconName as keyof typeof LucideIcons] || Folder;
@@ -122,9 +119,9 @@ export function ContentCard({ item }: ContentCardProps) {
         );
       case "note":
         return (
-          <div className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-h-36 overflow-hidden">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{item.content}</ReactMarkdown>
-          </div>
+          <p className="text-sm text-muted-foreground max-h-36 overflow-hidden whitespace-pre-wrap">
+            {item.content}
+          </p>
         );
       case "link":
         return (

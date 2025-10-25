@@ -27,8 +27,6 @@ import { readFileAsDataURL, cn } from "@/lib/utils";
 import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MarkdownEditor } from "./markdown-editor";
-
 
 type AddContentDialogProps = {
     trigger: ReactNode;
@@ -203,7 +201,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
                 {formData.type === "note" && (
                     <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
-                        <MarkdownEditor value={formData.content} onChange={(v) => handleInputChange('content', v)} />
+                        <Textarea id="content" value={formData.content} onChange={(e) => handleInputChange('content', e.target.value)} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
                     </FormFieldWrapper>
                 )}
                 {formData.type === "link" && (
@@ -334,5 +332,3 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     </Dialog>
   );
 }
-
-    
