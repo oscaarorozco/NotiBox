@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Bold, Italic, Heading1, Heading2, Heading3, Code, Quote, List, LinkIcon } from 'lucide-react';
@@ -13,6 +13,17 @@ type MarkdownEditorProps = {
 
 export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [internalValue, setInternalValue] = useState(value);
+
+  useEffect(() => {
+    // Sync from parent if the initial value changes (e.g. opening dialog with new content)
+    setInternalValue(value);
+  }, [value]);
+  
+  const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInternalValue(e.target.value);
+      onChange(e.target.value);
+  }
 
   const applyFormat = (format: 'bold' | 'italic' | 'h1' | 'h2' | 'h3' | 'code' | 'quote' | 'list' | 'link') => {
     const textarea = textareaRef.current;
@@ -21,49 +32,49 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     textarea.focus();
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const selectedText = value.substring(start, end);
+    const selectedText = internalValue.substring(start, end);
 
     let prefix = '';
     let suffix = '';
-    let newCursorPosition = start;
-
+    
     switch (format) {
-      case 'h1': prefix = '# '; newCursorPosition = start + 2; break;
-      case 'h2': prefix = '## '; newCursorPosition = start + 3; break;
-      case 'h3': prefix = '### '; newCursorPosition = start + 4; break;
-      case 'bold': prefix = '**'; suffix = '**'; newCursorPosition = start + 2; break;
-      case 'italic': prefix = '*'; suffix = '*'; newCursorPosition = start + 1; break;
-      case 'code': prefix = '`'; suffix = '`'; newCursorPosition = start + 1; break;
-      case 'quote': prefix = '> '; newCursorPosition = start + 2; break;
-      case 'list': prefix = '- '; newCursorPosition = start + 2; break;
-      case 'link': prefix = '['; suffix = '](url)'; newCursorPosition = start + 1; break;
+      case 'h1': prefix = '# '; break;
+      case 'h2': prefix = '## '; break;
+      case 'h3': prefix = '### '; break;
+      case 'bold': prefix = '**'; suffix = '**'; break;
+      case 'italic': prefix = '*'; suffix = '*'; break;
+      case 'code': prefix = '`'; suffix = '`'; break;
+      case 'quote': prefix = '> '; break;
+      case 'list': prefix = '- '; break;
+      case 'link': prefix = '['; suffix = '](url)'; break;
     }
     
     let textToInsert = '';
-    let finalCursorPosition = 0;
 
     if (selectedText) {
         textToInsert = prefix + selectedText + suffix;
-        finalCursorPosition = start + prefix.length + selectedText.length + suffix.length;
     } else {
         textToInsert = prefix + suffix;
-        finalCursorPosition = newCursorPosition;
     }
 
     const newText = 
-      value.substring(0, start) + 
+      internalValue.substring(0, start) + 
       textToInsert + 
-      value.substring(end);
+      internalValue.substring(end);
       
+    setInternalValue(newText);
     onChange(newText);
     
     // Defer setting selection to after the state update has been processed
     setTimeout(() => {
         if (!textarea) return;
+        const newCursorPosition = start + prefix.length;
         if(selectedText) {
             textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
+        } else if (format === 'link') {
+            textarea.setSelectionRange(start + prefix.length + selectedText.length + 2, start + prefix.length + selectedText.length + 5);
         } else {
-            textarea.setSelectionRange(finalCursorPosition, finalCursorPosition);
+            textarea.setSelectionRange(newCursorPosition, newCursorPosition);
         }
     }, 0);
   };
@@ -101,8 +112,8 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         </TooltipProvider>
       <Textarea
         ref={textareaRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={internalValue}
+        onChange={handleLocalChange}
         className="min-h-[200px] w-full rounded-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         placeholder="Escribe tu nota aquí. El formato Markdown es compatible."
       />
