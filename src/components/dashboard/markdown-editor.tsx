@@ -18,6 +18,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
+    textarea.focus();
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = value.substring(start, end);
@@ -37,23 +38,32 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
       case 'list': prefix = '- '; newCursorPosition = start + 2; break;
       case 'link': prefix = '['; suffix = '](url)'; newCursorPosition = start + 1; break;
     }
+    
+    let textToInsert = '';
+    let finalCursorPosition = 0;
+
+    if (selectedText) {
+        textToInsert = prefix + selectedText + suffix;
+        finalCursorPosition = start + prefix.length + selectedText.length + suffix.length;
+    } else {
+        textToInsert = prefix + suffix;
+        finalCursorPosition = newCursorPosition;
+    }
 
     const newText = 
       value.substring(0, start) + 
-      prefix + 
-      selectedText + 
-      suffix + 
+      textToInsert + 
       value.substring(end);
       
     onChange(newText);
-
-    // We need a timeout to wait for React to re-render the textarea with the new value
+    
+    // Defer setting selection to after the state update has been processed
     setTimeout(() => {
-        textarea.focus();
-        if (selectedText) {
+        if (!textarea) return;
+        if(selectedText) {
             textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
         } else {
-             textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+            textarea.setSelectionRange(finalCursorPosition, finalCursorPosition);
         }
     }, 0);
   };
