@@ -22,7 +22,11 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   
   const handleLocalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInternalValue(e.target.value);
-      onChange(e.target.value);
+  }
+  
+  const handleBlur = () => {
+    // Inform the parent component of the final value when the user is done editing.
+    onChange(internalValue);
   }
 
   const applyFormat = (format: 'bold' | 'italic' | 'h1' | 'h2' | 'h3' | 'code' | 'quote' | 'list' | 'link') => {
@@ -114,6 +118,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         ref={textareaRef}
         value={internalValue}
         onChange={handleLocalChange}
+        onBlur={handleBlur}
         className="min-h-[200px] w-full rounded-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         placeholder="Escribe tu nota aquí. El formato Markdown es compatible."
       />
