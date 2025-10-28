@@ -15,7 +15,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Nébula de Notas",
+  title: "NotiBox",
   description: "Tu espacio para almacenar ideas y notas en una nebulosa personal.",
 };
 
