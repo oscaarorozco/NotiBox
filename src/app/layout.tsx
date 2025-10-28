@@ -15,8 +15,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Central de Contenido",
-  description: "Tu organizador de contenido personal, minimalista y potente.",
+  title: "Nébula de Notas",
+  description: "Tu espacio para almacenar ideas y notas en una nebulosa personal.",
 };
 
 export default function RootLayout({

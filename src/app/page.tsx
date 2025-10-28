@@ -10,7 +10,7 @@ export default function RootPage() {
           <Book className="h-10 w-10 text-primary-foreground" />
         </div>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-headline font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-foreground">
-          Central de Contenido
+          Nébula de Notas
         </h1>
         <p className="mt-4 text-md sm:text-lg md:text-xl text-muted-foreground">
           Tu espacio personal para organizar notas, enlaces e imágenes. Minimalista, potente y siempre a tu alcance.

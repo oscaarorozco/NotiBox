@@ -20,7 +20,7 @@ export function DashboardHeader() {
                 className="flex items-center gap-2 font-semibold"
             >
                 <Book className="h-6 w-6 text-primary" />
-                <span className="sr-only">Central de Contenido</span>
+                <span className="sr-only">Nébula de Notas</span>
             </Link>
 
             <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
