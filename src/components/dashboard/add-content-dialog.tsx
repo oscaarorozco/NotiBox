@@ -44,9 +44,9 @@ const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> 
 export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
-  
-  // Replicating the logic from GroupManager: separate states for each field
   const [selectedType, setSelectedType] = useState<ContentItemType | null>(null);
+
+  // --- State management replicated from GroupManager ---
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [url, setUrl] = useState('');
@@ -55,21 +55,34 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [icon, setIcon] = useState('');
   const [aspect, setAspect] = useState<CardAspect>('default');
   const [newTaskText, setNewTaskText] = useState("");
-  
+  // --- End of replicated state management ---
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!itemToEdit;
 
   useEffect(() => {
     if (isOpen) {
       if (isEditing && itemToEdit) {
+        // Pre-fill states for editing
         setSelectedType(itemToEdit.type);
         setTitle(itemToEdit.title);
         setTags(itemToEdit.tags.join(', '));
         setIcon(itemToEdit.icon || '');
         setAspect(itemToEdit.aspect || 'default');
-        setContent(itemToEdit.type === 'note' ? itemToEdit.content : '');
-        setUrl((itemToEdit.type === 'link' || itemToEdit.type === 'image') ? itemToEdit.url : '');
-        setTasks(itemToEdit.type === 'todo' ? itemToEdit.tasks : []);
+        
+        switch(itemToEdit.type) {
+            case 'note':
+                setContent(itemToEdit.content);
+                break;
+            case 'link':
+            case 'image':
+                setUrl(itemToEdit.url);
+                break;
+            case 'todo':
+                setTasks(itemToEdit.tasks);
+                break;
+        }
+
       } else {
         // Reset all states for a new item
         setSelectedType(null);
