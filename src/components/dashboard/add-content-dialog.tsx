@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, ReactNode, useEffect } from "react";
@@ -221,7 +222,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                                         className="h-20" 
                                         onPaste={handlePaste} 
                                         value={url}
-                                        onChange={e => setUrl(e.target.value)}
+                                        onChange={(e) => setUrl(e.target.value)}
                                     />
                                 )}
                             </div>
@@ -342,3 +343,5 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     </Dialog>
   );
 }
+
+    
