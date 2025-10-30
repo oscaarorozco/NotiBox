@@ -337,5 +337,3 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     </Dialog>
   );
 }
-
-    
