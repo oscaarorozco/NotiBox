@@ -41,21 +41,20 @@ const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> 
     { type: 'todo', label: 'Lista de Tareas', icon: ListTodo },
 ];
 
-const initialFormData = {
-  title: '',
-  content: '',
-  url: '',
-  tags: '',
-  tasks: [] as TodoItem['tasks'],
-  icon: '',
-  aspect: 'default' as CardAspect,
-};
-
 export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<ContentItemType | null>(null);
-  const [formData, setFormData] = useState(initialFormData);
+  
+  // Replicating the logic from GroupManager: separate states for each field
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [url, setUrl] = useState('');
+  const [tags, setTags] = useState('');
+  const [tasks, setTasks] = useState<TodoItem['tasks']>([]);
+  const [icon, setIcon] = useState('');
+  const [aspect, setAspect] = useState<CardAspect>('default');
+  
   const [newTaskText, setNewTaskText] = useState("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,26 +64,27 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     if (isOpen) {
       if (isEditing && itemToEdit) {
         setSelectedType(itemToEdit.type);
-        setFormData({
-          title: itemToEdit.title,
-          tags: itemToEdit.tags.join(', '),
-          icon: itemToEdit.icon || '',
-          aspect: itemToEdit.aspect || 'default',
-          content: itemToEdit.type === 'note' ? itemToEdit.content : '',
-          url: (itemToEdit.type === 'link' || itemToEdit.type === 'image') ? itemToEdit.url : '',
-          tasks: itemToEdit.type === 'todo' ? itemToEdit.tasks : [],
-        });
+        setTitle(itemToEdit.title);
+        setTags(itemToEdit.tags.join(', '));
+        setIcon(itemToEdit.icon || '');
+        setAspect(itemToEdit.aspect || 'default');
+        setContent(itemToEdit.type === 'note' ? itemToEdit.content : '');
+        setUrl((itemToEdit.type === 'link' || itemToEdit.type === 'image') ? itemToEdit.url : '');
+        setTasks(itemToEdit.type === 'todo' ? itemToEdit.tasks : []);
       } else {
+        // Reset all states for a new item
         setSelectedType(null);
-        setFormData(initialFormData);
+        setTitle('');
+        setContent('');
+        setUrl('');
+        setTags('');
+        setTasks([]);
+        setIcon('');
+        setAspect('default');
         setNewTaskText("");
       }
     }
   }, [isOpen, itemToEdit, isEditing]);
-
-  const handleFieldChange = (updates: Partial<typeof initialFormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
-  };
   
   const handleTypeChange = (type: ContentItemType) => {
     setSelectedType(type);
@@ -95,7 +95,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     if (file) {
       try {
         const dataUrl = await readFileAsDataURL(file);
-        handleFieldChange({ url: dataUrl });
+        setUrl(dataUrl);
       } catch (error) {
         console.error("Error al leer el archivo", error);
       }
@@ -111,7 +111,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
         const blob = item.getAsFile();
         if(blob){
           const dataUrl = await readFileAsDataURL(blob);
-          handleFieldChange({ url: dataUrl });
+          setUrl(dataUrl);
         }
       }
     }
@@ -119,42 +119,42 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
   const handleAddTask = () => {
     if(newTaskText.trim() === '') return;
-    const newTasks = [...formData.tasks, { id: Date.now().toString(), text: newTaskText.trim(), completed: false }];
-    handleFieldChange({ tasks: newTasks });
+    const newTasks = [...tasks, { id: Date.now().toString(), text: newTaskText.trim(), completed: false }];
+    setTasks(newTasks);
     setNewTaskText("");
   };
 
   const handleToggleTask = (id: string) => {
-    const newTasks = formData.tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
-    handleFieldChange({ tasks: newTasks });
+    const newTasks = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
+    setTasks(newTasks);
   };
   
   const handleDeleteTask = (id: string) => {
-      const newTasks = formData.tasks.filter(task => task.id !== id);
-      handleFieldChange({ tasks: newTasks });
+      const newTasks = tasks.filter(task => task.id !== id);
+      setTasks(newTasks);
   }
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     
     const targetGroupId = isEditing ? itemToEdit!.groupId : (activeGroupId || defaultGroupId);
-    if (!formData.title || !targetGroupId || !selectedType) return;
+    if (!title || !targetGroupId || !selectedType) return;
 
     const commonData = {
-      title: formData.title,
-      icon: formData.icon,
-      aspect: formData.aspect,
-      tags: formData.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      title: title,
+      icon: icon,
+      aspect: aspect,
+      tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
       groupId: targetGroupId,
     };
     
     let itemData;
 
     switch (selectedType) {
-      case 'note': itemData = { ...commonData, type: 'note', content: formData.content }; break;
-      case 'link': itemData = { ...commonData, type: 'link', url: formData.url }; break;
-      case 'image': itemData = { ...commonData, type: 'image', url: formData.url }; break;
-      case 'todo': itemData = { ...commonData, type: 'todo', tasks: formData.tasks }; break;
+      case 'note': itemData = { ...commonData, type: 'note', content: content }; break;
+      case 'link': itemData = { ...commonData, type: 'link', url: url }; break;
+      case 'image': itemData = { ...commonData, type: 'image', url: url }; break;
+      case 'todo': itemData = { ...commonData, type: 'todo', tasks: tasks }; break;
       default: return;
     }
     
@@ -188,25 +188,25 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 space-y-4">
                     <FormFieldWrapper label="Título" htmlFor="title">
-                        <Input id="title" name="title" value={formData.title} onChange={(e) => handleFieldChange({ title: e.target.value })} />
+                        <Input id="title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} />
                     </FormFieldWrapper>
 
                     {selectedType === "note" && (
                     <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
-                        <Textarea id="content" name="content" value={formData.content} onChange={(e) => handleFieldChange({ content: e.target.value })} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
+                        <Textarea id="content" name="content" value={content} onChange={(e) => setContent(e.target.value)} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
                     </FormFieldWrapper>
                     )}
                     {selectedType === "link" && (
                         <FormFieldWrapper label="URL" htmlFor="url">
-                            <Input id="url" name="url" value={formData.url} onChange={(e) => handleFieldChange({ url: e.target.value })} />
+                            <Input id="url" name="url" value={url} onChange={(e) => setUrl(e.target.value)} />
                         </FormFieldWrapper>
                     )}
                     {selectedType === "image" && (
                         <FormFieldWrapper label="Imagen" htmlFor="image-file">
                             <div className="grid gap-2">
                                 <Input id="image-file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
-                                <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste} value={formData.url ? 'Imagen cargada. Pega otra para reemplazarla.' : ''} readOnly={!!formData.url}/>
-                                {formData.url && <img src={formData.url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />}
+                                <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste} value={url ? 'Imagen cargada. Pega otra para reemplazarla.' : ''} readOnly={!!url}/>
+                                {url && <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />}
                             </div>
                         </FormFieldWrapper>
                     )}
@@ -218,7 +218,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                                     <Button type="button" size="icon" onClick={handleAddTask}><Plus className="h-4 w-4" /></Button>
                                 </div>
                                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                                    {formData.tasks.map(task => (
+                                    {tasks.map(task => (
                                         <div key={task.id} className="flex items-center gap-2 group">
                                             <Checkbox id={`task-${task.id}`} checked={task.completed} onCheckedChange={() => handleToggleTask(task.id)} />
                                             <label htmlFor={`task-${task.id}`} className={cn("flex-1 text-sm", task.completed && "line-through text-muted-foreground")}>{task.text}</label>
@@ -232,7 +232,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                         </FormFieldWrapper>
                     )}
                     <FormFieldWrapper label="Etiquetas" htmlFor="tags">
-                        <Input id="tags" name="tags" value={formData.tags} onChange={(e) => handleFieldChange({ tags: e.target.value })} placeholder="Etiquetas separadas por comas" />
+                        <Input id="tags" name="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Etiquetas separadas por comas" />
                     </FormFieldWrapper>
                 </AccordionContent>
             </AccordionItem>
@@ -245,15 +245,15 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 space-y-4">
                     <FormFieldWrapper label="Icono" htmlFor="icon-name">
-                        <Input id="icon" name="icon" value={formData.icon} onChange={(e) => handleFieldChange({ icon: e.target.value })} placeholder="Ej: folder, home, lightbulb" />
+                        <Input id="icon" name="icon" value={icon} onChange={(e) => setIcon(e.target.value)} placeholder="Ej: folder, home, lightbulb" />
                     </FormFieldWrapper>
 
                     <FormFieldWrapper label="Aspecto" htmlFor="aspect-default">
-                        <RadioGroup value={formData.aspect} onValueChange={(v) => handleFieldChange({ aspect: v as CardAspect })} className="flex flex-col sm:flex-row gap-4">
+                        <RadioGroup value={aspect} onValueChange={(v) => setAspect(v as CardAspect)} className="flex flex-col sm:flex-row gap-4">
                             <div>
                                 <RadioGroupItem value="default" id="aspect-default" className="sr-only"/>
                                 <Label htmlFor="aspect-default">
-                                    <Card className={cn("cursor-pointer", formData.aspect === 'default' && "border-primary ring-2 ring-primary")}>
+                                    <Card className={cn("cursor-pointer", aspect === 'default' && "border-primary ring-2 ring-primary")}>
                                         <CardContent className="p-3">
                                             <p className="font-semibold text-sm">Default</p>
                                             <p className="text-xs text-muted-foreground">Estilo estándar.</p>
@@ -264,7 +264,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                             <div>
                                 <RadioGroupItem value="highlighted" id="aspect-highlighted" className="sr-only"/>
                                 <Label htmlFor="aspect-highlighted">
-                                    <Card className={cn("cursor-pointer border-primary/50", formData.aspect === 'highlighted' && "border-primary ring-2 ring-primary")}>
+                                    <Card className={cn("cursor-pointer border-primary/50", aspect === 'highlighted' && "border-primary ring-2 ring-primary")}>
                                         <CardContent className="p-3">
                                             <p className="font-semibold text-sm text-primary">Destacado</p>
                                             <p className="text-xs text-muted-foreground">Resaltar elemento.</p>
@@ -275,7 +275,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                             <div>
                                 <RadioGroupItem value="minimalist" id="aspect-minimalist" className="sr-only"/>
                                 <Label htmlFor="aspect-minimalist">
-                                    <Card className={cn("cursor-pointer bg-transparent shadow-none border-dashed", formData.aspect === 'minimalist' && "border-primary ring-2 ring-primary")}>
+                                    <Card className={cn("cursor-pointer bg-transparent shadow-none border-dashed", aspect === 'minimalist' && "border-primary ring-2 ring-primary")}>
                                         <CardContent className="p-3">
                                             <p className="font-semibold text-sm">Minimalista</p>
                                             <p className="text-xs text-muted-foreground">Diseño simple.</p>
