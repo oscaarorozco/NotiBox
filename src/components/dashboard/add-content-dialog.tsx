@@ -44,9 +44,9 @@ const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> 
 export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<ContentItemType | null>(null);
   
   // Replicating the logic from GroupManager: separate states for each field
+  const [selectedType, setSelectedType] = useState<ContentItemType | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [url, setUrl] = useState('');
@@ -54,7 +54,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [tasks, setTasks] = useState<TodoItem['tasks']>([]);
   const [icon, setIcon] = useState('');
   const [aspect, setAspect] = useState<CardAspect>('default');
-  
   const [newTaskText, setNewTaskText] = useState("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -205,8 +204,17 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                         <FormFieldWrapper label="Imagen" htmlFor="image-file">
                             <div className="grid gap-2">
                                 <Input id="image-file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
-                                <Textarea placeholder="O pega la imagen aquí" className="h-20" onPaste={handlePaste} value={url ? 'Imagen cargada. Pega otra para reemplazarla.' : ''} readOnly={!!url}/>
-                                {url && <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />}
+                                {url ? (
+                                     <img src={url} alt="Vista previa" className="mt-2 max-h-40 rounded-md object-contain border border-border" />
+                                ) : (
+                                    <Textarea 
+                                        placeholder="O pega la imagen aquí" 
+                                        className="h-20" 
+                                        onPaste={handlePaste} 
+                                        value={url}
+                                        onChange={e => setUrl(e.target.value)}
+                                    />
+                                )}
                             </div>
                         </FormFieldWrapper>
                     )}
