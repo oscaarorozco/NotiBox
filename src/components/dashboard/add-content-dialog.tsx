@@ -45,7 +45,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
   
-  // State management replicated from GroupManager
   const [selectedType, setSelectedType] = useState<ContentItemType | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
