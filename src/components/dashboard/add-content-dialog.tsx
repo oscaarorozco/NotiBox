@@ -24,7 +24,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect, TodoItem, NoteItem, LinkItem, ImageItem } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, BrainCircuit } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -56,7 +56,7 @@ const getInitialFormData = (item?: ContentItem): FormData => {
     const defaults = {
         type: "note" as ContentItemType,
         title: "",
-        icon: undefined,
+        icon: "",
         aspect: 'default' as CardAspect,
         content: "",
         url: "",
@@ -69,7 +69,7 @@ const getInitialFormData = (item?: ContentItem): FormData => {
     return {
         type: item.type,
         title: item.title,
-        icon: item.icon,
+        icon: item.icon || "",
         aspect: item.aspect || 'default',
         content: item.type === 'note' ? (item as NoteItem).content : "",
         url: (item.type === 'link' || item.type === 'image') ? (item as LinkItem | ImageItem).url : "",
@@ -84,8 +84,8 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [isOpen, setIsOpen] = useState(false);
   const isEditingItem = !!itemToEdit;
   
-  const [formData, setFormData] = useState<FormData>(getInitialFormData(itemToEdit));
-  const [selectedType, setSelectedType] = useState<ContentItemType | null>(itemToEdit?.type || null);
+  const [formData, setFormData] = useState<FormData>(getInitialFormData());
+  const [selectedType, setSelectedType] = useState<ContentItemType | null>(null);
   const [newTaskText, setNewTaskText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,9 +98,14 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     }
   }, [isOpen, itemToEdit]);
 
-  const handleInputChange = (field: keyof Omit<FormData, 'tasks'>, value: any) => {
+  const handleInputChange = (field: keyof Omit<FormData, 'tasks' | 'type'>, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleTypeChange = (type: ContentItemType) => {
+    setSelectedType(type);
+    setFormData(prev => ({...prev, type: type}));
+  }
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -317,7 +322,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
         {!selectedType ? (
              <div className="grid grid-cols-2 gap-4 py-4">
                 {contentTypes.map(({ type, label, icon: Icon }) => (
-                    <div key={type} onClick={() => { setSelectedType(type); handleInputChange('type', type); }} className="p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-accent hover:border-primary/50 transition-all text-center border rounded-lg">
+                    <div key={type} onClick={() => handleTypeChange(type)} className="p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-accent hover:border-primary/50 transition-all text-center border rounded-lg">
                         <Icon className="h-8 w-8 text-primary" />
                         <span className="font-semibold">{label}</span>
                     </div>
