@@ -44,9 +44,9 @@ const contentTypes: { type: ContentItemType, label: string, icon: React.FC<any> 
 export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddContentDialogProps) {
   const { activeGroupId, addItem, updateItem } = useContentStore();
   const [isOpen, setIsOpen] = useState(false);
+  
+  // State management replicated from GroupManager
   const [selectedType, setSelectedType] = useState<ContentItemType | null>(null);
-
-  // --- State management replicated from GroupManager ---
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [url, setUrl] = useState('');
@@ -55,15 +55,13 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [icon, setIcon] = useState('');
   const [aspect, setAspect] = useState<CardAspect>('default');
   const [newTaskText, setNewTaskText] = useState("");
-  // --- End of replicated state management ---
-
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!itemToEdit;
 
   useEffect(() => {
     if (isOpen) {
       if (isEditing && itemToEdit) {
-        // Pre-fill states for editing
         setSelectedType(itemToEdit.type);
         setTitle(itemToEdit.title);
         setTags(itemToEdit.tags.join(', '));
@@ -82,7 +80,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 setTasks(itemToEdit.tasks);
                 break;
         }
-
       } else {
         // Reset all states for a new item
         setSelectedType(null);
@@ -153,9 +150,9 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     if (!title || !targetGroupId || !selectedType) return;
 
     const commonData = {
-      title: title,
-      icon: icon,
-      aspect: aspect,
+      title,
+      icon,
+      aspect,
       tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
       groupId: targetGroupId,
     };
@@ -163,10 +160,10 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     let itemData;
 
     switch (selectedType) {
-      case 'note': itemData = { ...commonData, type: 'note', content: content }; break;
-      case 'link': itemData = { ...commonData, type: 'link', url: url }; break;
-      case 'image': itemData = { ...commonData, type: 'image', url: url }; break;
-      case 'todo': itemData = { ...commonData, type: 'todo', tasks: tasks }; break;
+      case 'note': itemData = { ...commonData, type: 'note', content }; break;
+      case 'link': itemData = { ...commonData, type: 'link', url }; break;
+      case 'image': itemData = { ...commonData, type: 'image', url }; break;
+      case 'todo': itemData = { ...commonData, type: 'todo', tasks }; break;
       default: return;
     }
     
@@ -319,7 +316,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Contenido' : 'Agregar Nuevo Contenido'}</DialogTitle>
           <DialogDescription>
-            {!selectedType && !isEditing ? 'Selecciona un tipo de contenido para agregar.' : 'Modifica los detalles de tu elemento.'}
+            {isEditing ? 'Modifica los detalles de tu elemento.' : (selectedType ? 'Rellena los detalles de tu nuevo elemento.' : 'Selecciona un tipo de contenido para agregar.')}
           </DialogDescription>
         </DialogHeader>
         
