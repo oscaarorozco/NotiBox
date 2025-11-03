@@ -86,24 +86,32 @@ export default {
         'shimmer': {
           '100%': { transform: 'translateX(100%)' },
         },
-        'glitch': {
-          '2%, 64%': { transform: 'translate(2px, 0) skew(0deg)' },
-          '4%, 60%': { transform: 'translate(-2px, 0) skew(0deg)' },
-          '62%': { transform: 'translate(0, 0) skew(5deg)' },
+        'aurora-glitch': {
+          '0%': {
+            backgroundPosition: '0% 50%',
+            transform: 'translateY(0) skew(0)',
+            textShadow: '0 0 0.5px hsl(var(--primary) / 0.5), 0 0 1px hsl(var(--foreground) / 0.3)',
+          },
+          '25%': {
+            transform: 'translateY(0.5px) skew(0.2deg)',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+            transform: 'translateY(0) skew(0)',
+            textShadow: '0 0 0.5px hsl(var(--accent-foreground) / 0.5), 0 0 1px hsl(var(--foreground) / 0.3)',
+          },
+          '75%': {
+            transform: 'translateY(-0.5px) skew(-0.2deg)',
+          },
+          '100%': {
+            backgroundPosition: '0% 50%',
+            transform: 'translateY(0) skew(0)',
+            textShadow: '0 0 0.5px hsl(var(--primary) / 0.5), 0 0 1px hsl(var(--foreground) / 0.3)',
+          },
         },
-        'glitch-before': {
-           '0%, 15%, 45%, 100%': { clipPath: 'inset(0 0 0 0)' },
-           '20%': { clipPath: 'inset(30% 0 40% 0)'},
-           '25%': { clipPath: 'inset(10% 0 80% 0)'},
-           '35%': { clipPath: 'inset(50% 0 20% 0)'},
-           '40%': { clipPath: 'inset(70% 0 10% 0)'},
-        },
-         'glitch-after': {
-           '0%, 15%, 45%, 100%': { clipPath: 'inset(0 0 0 0)' },
-           '20%': { clipPath: 'inset(60% 0 10% 0)'},
-           '25%': { clipPath: 'inset(90% 0 5% 0)'},
-           '35%': { clipPath: 'inset(30% 0 60% 0)'},
-           '40%': { clipPath: 'inset(10% 0 75% 0)'},
+        'grid-pan': {
+          '0%': { backgroundPosition: '0% 0%' },
+          '100%': { backgroundPosition: '24px 24px' },
         },
       },
       animation: {
@@ -111,7 +119,8 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'slide-up-and-fade': 'slide-up-and-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         'shimmer': 'shimmer 2s infinite',
-        'glitch': 'glitch 1.5s linear infinite',
+        'aurora-glitch': 'aurora-glitch 8s ease-in-out infinite',
+        'grid-pan': 'grid-pan 3s linear infinite',
       },
        typography: (theme: (arg0: string) => any) => ({
         DEFAULT: {
