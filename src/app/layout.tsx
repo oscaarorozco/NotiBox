@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Inter, Bebas_Neue } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -8,9 +8,10 @@ const inter = Inter({
   variable: "--font-body",
   display: 'swap',
 });
-const spaceGrotesk = Space_Grotesk({ 
+const bebasNeue = Bebas_Neue({ 
   subsets: ["latin"], 
   variable: "--font-headline",
+  weight: "400",
   display: 'swap',
 });
 
@@ -26,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} font-body antialiased bg-background text-foreground`}>
+      <body className={`${inter.variable} ${bebasNeue.variable} font-body antialiased bg-background text-foreground`}>
         {children}
         <Toaster />
       </body>

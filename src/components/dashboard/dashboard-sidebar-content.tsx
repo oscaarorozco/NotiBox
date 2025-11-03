@@ -32,7 +32,7 @@ export function DashboardSidebarContent() {
                 href="/dashboard"
                 className="group flex h-10 shrink-0 items-center justify-center gap-2 text-lg font-semibold"
             >
-                <div className="glitch relative text-2xl font-headline font-bold text-primary w-full">NotiBox</div>
+                <div className="text-2xl font-headline font-bold text-transparent bg-clip-text animate-aurora-glitch w-full">NotiBox</div>
             </Link>
         </SidebarHeader>
 
