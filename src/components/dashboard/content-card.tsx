@@ -204,6 +204,8 @@ export function ContentCard({ item }: ContentItemProps) {
 
   const renderTypeIcon = () => {
     const className = "h-4 w-4 text-muted-foreground";
+    // For links with favicons, we don't show a type icon as the favicon is already there in the title
+    if (item.type === 'link' && item.faviconUrl) return null;
     switch (item.type) {
       case "link": return <LinkIcon className={className} />;
       case "note": return <FileText className={className} />;
@@ -216,7 +218,7 @@ export function ContentCard({ item }: ContentItemProps) {
   const otherGroups = appData.groups.filter(g => g.id !== item.groupId);
   
   const cardClasses = cn(
-    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out animate-slide-up-and-fade",
+    "group relative flex flex-col justify-between overflow-hidden transition-all duration-300 ease-in-out animate-slide-up-and-fade h-auto",
     {
       'default': 'hover:border-primary/80 hover:shadow-lg hover:shadow-primary/10',
       'highlighted': 'border-primary/50 shadow-md shadow-primary/10',

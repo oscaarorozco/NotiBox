@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Box, LayoutDashboard, LineChart, Settings, PlusCircle } from "lucide-react";
+import { BookOpenText, LayoutDashboard, LineChart, Settings, Plus } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
   SidebarContent,
@@ -32,7 +32,7 @@ export function DashboardSidebarContent() {
                 href="/dashboard"
                 className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground"
             >
-                <Box className="h-5 w-5 transition-all group-hover:scale-110 animate-pulse-and-rotate" />
+                <BookOpenText className="h-5 w-5 transition-all group-hover:scale-110 animate-pulse-and-rotate" />
                 <span className="sr-only">NotiBox</span>
             </Link>
         </SidebarHeader>
@@ -46,7 +46,7 @@ export function DashboardSidebarContent() {
                     <AddContentDialog 
                         trigger={
                            <SidebarMenuButton tooltip={{ children: 'Agregar Contenido' }} disabled={!activeGroupId}>
-                                <PlusCircle/>
+                                <Plus/>
                                 <span>Agregar Contenido</span>
                             </SidebarMenuButton>
                         }

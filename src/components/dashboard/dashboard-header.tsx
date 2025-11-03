@@ -1,7 +1,7 @@
 "use client";
 
 import { useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
-import { Box, PanelLeft } from "lucide-react";
+import { BookOpenText, PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { useContentStore } from "@/hooks/use-content-store";
 
@@ -19,7 +19,7 @@ export function DashboardHeader() {
                 href="/dashboard"
                 className="flex items-center gap-2 font-semibold"
             >
-                <Box className="h-6 w-6 text-primary animate-pulse-and-rotate" />
+                <BookOpenText className="h-6 w-6 text-primary animate-pulse-and-rotate" />
                 <span className="sr-only">NotiBox</span>
             </Link>
 
