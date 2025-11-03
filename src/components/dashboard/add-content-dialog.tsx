@@ -25,11 +25,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect, TodoItem } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, BrainCircuit } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MarkdownEditor } from "./markdown-editor";
-import { generateNoteContent } from "@/ai/flows/generate-content-flow";
 import { useToast } from "@/hooks/use-toast";
 
 type AddContentDialogProps = {
@@ -55,8 +54,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [newTaskText, setNewTaskText] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [noteContent, setNoteContent] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState("");
   
   const { toast } = useToast();
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +82,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
         setNewTaskText("");
         setImageUrl("");
         setNoteContent("");
-        setAiPrompt("");
       }
     }
   }, [isOpen, itemToEdit, isEditing]);
@@ -137,32 +133,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
       const newTasks = tasks.filter(task => task.id !== id);
       setTasks(newTasks);
   }
-
-  const handleGenerateContent = async () => {
-    if(!aiPrompt.trim()) return;
-    setIsGenerating(true);
-    try {
-        const result = await generateNoteContent({ prompt: aiPrompt });
-        if(titleInputRef.current) {
-            titleInputRef.current.value = result.title;
-        }
-        setNoteContent(result.content);
-        toast({
-            title: "Contenido generado",
-            description: "La IA ha creado un título y contenido para tu nota."
-        })
-    } catch (error) {
-        console.error("Error generando contenido con IA:", error);
-        toast({
-            title: "Error de la IA",
-            description: "No se pudo generar el contenido. Inténtalo de nuevo.",
-            variant: "destructive"
-        })
-    } finally {
-        setIsGenerating(false);
-    }
-  }
-
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -237,33 +207,12 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                     </FormFieldWrapper>
 
                     {selectedType === "note" && (
-                        <>
-                            <Accordion type="single" collapsible className='w-full'>
-                                <AccordionItem value="ai-generator">
-                                    <AccordionTrigger className="text-sm font-semibold py-2">
-                                        <div className="flex items-center gap-2 text-primary">
-                                            <BrainCircuit className="h-5 w-5"/>
-                                            <span>Generar nota con IA (Opcional)</span>
-                                        </div>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="pt-4 space-y-2">
-                                        <Label htmlFor='ai-prompt'>Describe la idea para tu nota:</Label>
-                                        <div className="flex gap-2">
-                                            <Input id="ai-prompt" value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} placeholder="Ej: una receta de lasaña vegetariana"/>
-                                            <Button type="button" onClick={handleGenerateContent} disabled={isGenerating}>
-                                                {isGenerating ? "Generando..." : "Generar"}
-                                            </Button>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
-                                <MarkdownEditor
-                                    value={noteContent}
-                                    onChange={setNoteContent}
-                                />
-                            </FormFieldWrapper>
-                        </>
+                        <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
+                            <MarkdownEditor
+                                value={noteContent}
+                                onChange={setNoteContent}
+                            />
+                        </FormFieldWrapper>
                     )}
                     {selectedType === "link" && (
                         <FormFieldWrapper label="URL" htmlFor="url">
