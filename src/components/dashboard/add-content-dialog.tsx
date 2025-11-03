@@ -25,9 +25,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect, TodoItem } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, BrainCircuit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MarkdownEditor } from "./markdown-editor";
+import { generateNoteContent } from "@/ai/flows/generate-content-flow";
+import { useToast } from "@/hooks/use-toast";
 
 type AddContentDialogProps = {
     trigger: ReactNode;
@@ -51,7 +54,12 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [aspect, setAspect] = useState<CardAspect>('default');
   const [newTaskText, setNewTaskText] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [noteContent, setNoteContent] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
   
+  const { toast } = useToast();
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!itemToEdit;
@@ -61,6 +69,9 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
       if (isEditing && itemToEdit) {
         setSelectedType(itemToEdit.type);
         setAspect(itemToEdit.aspect || 'default');
+        if (itemToEdit.type === 'note') {
+            setNoteContent(itemToEdit.content);
+        }
         if (itemToEdit.type === 'todo') {
           setTasks(itemToEdit.tasks);
         }
@@ -73,6 +84,8 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
         setAspect('default');
         setNewTaskText("");
         setImageUrl("");
+        setNoteContent("");
+        setAiPrompt("");
       }
     }
   }, [isOpen, itemToEdit, isEditing]);
@@ -125,6 +138,32 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
       setTasks(newTasks);
   }
 
+  const handleGenerateContent = async () => {
+    if(!aiPrompt.trim()) return;
+    setIsGenerating(true);
+    try {
+        const result = await generateNoteContent({ prompt: aiPrompt });
+        if(titleInputRef.current) {
+            titleInputRef.current.value = result.title;
+        }
+        setNoteContent(result.content);
+        toast({
+            title: "Contenido generado",
+            description: "La IA ha creado un título y contenido para tu nota."
+        })
+    } catch (error) {
+        console.error("Error generando contenido con IA:", error);
+        toast({
+            title: "Error de la IA",
+            description: "No se pudo generar el contenido. Inténtalo de nuevo.",
+            variant: "destructive"
+        })
+    } finally {
+        setIsGenerating(false);
+    }
+  }
+
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     
@@ -150,7 +189,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
     switch (selectedType) {
       case 'note': 
-        itemData = { ...commonData, type: 'note', content: formData.get('content') as string }; 
+        itemData = { ...commonData, type: 'note', content: noteContent }; 
         break;
       case 'link': 
         itemData = { ...commonData, type: 'link', url: formData.get('url') as string }; 
@@ -194,13 +233,37 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 space-y-4">
                     <FormFieldWrapper label="Título" htmlFor="title">
-                        <Input id="title" name="title" defaultValue={itemToEdit?.title || ''} />
+                        <Input id="title" name="title" defaultValue={itemToEdit?.title || ''} ref={titleInputRef} />
                     </FormFieldWrapper>
 
                     {selectedType === "note" && (
-                      <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
-                          <Textarea id="content" name="content" defaultValue={isEditing && itemToEdit?.type === 'note' ? itemToEdit.content : ''} className="min-h-[200px]" placeholder="Escribe tu nota aquí..." />
-                      </FormFieldWrapper>
+                        <>
+                            <Accordion type="single" collapsible className='w-full'>
+                                <AccordionItem value="ai-generator">
+                                    <AccordionTrigger className="text-sm font-semibold py-2">
+                                        <div className="flex items-center gap-2 text-primary">
+                                            <BrainCircuit className="h-5 w-5"/>
+                                            <span>Generar nota con IA (Opcional)</span>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-2">
+                                        <Label htmlFor='ai-prompt'>Describe la idea para tu nota:</Label>
+                                        <div className="flex gap-2">
+                                            <Input id="ai-prompt" value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} placeholder="Ej: una receta de lasaña vegetariana"/>
+                                            <Button type="button" onClick={handleGenerateContent} disabled={isGenerating}>
+                                                {isGenerating ? "Generando..." : "Generar"}
+                                            </Button>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                            <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
+                                <MarkdownEditor
+                                    value={noteContent}
+                                    onChange={setNoteContent}
+                                />
+                            </FormFieldWrapper>
+                        </>
                     )}
                     {selectedType === "link" && (
                         <FormFieldWrapper label="URL" htmlFor="url">

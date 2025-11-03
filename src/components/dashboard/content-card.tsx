@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -23,7 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { ContentItem, ImageItem, LinkItem } from "@/lib/types";
+import type { ContentItem, ImageItem, LinkItem, NoteItem } from "@/lib/types";
 import { useContentStore } from "@/hooks/use-content-store";
 import { AddContentDialog } from "./add-content-dialog";
 import { Progress } from "../ui/progress";
@@ -38,6 +39,8 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const toPascalCase = (str: string) => {
     if (!str) return 'Folder';
@@ -62,7 +65,9 @@ const ContentDetailViewer = ({ item, onOpen }: { item: ContentItem, onOpen: () =
             case 'note':
                 return (
                     <div className="prose dark:prose-invert max-w-none">
-                        <p>{item.content}</p>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {item.content}
+                        </ReactMarkdown>
                     </div>
                 );
             case 'image':
@@ -166,7 +171,7 @@ const renderCardContent = (item: ContentItem, updateItem: (item: ContentItem) =>
 
     switch (item.type) {
         case "note":
-            return <p className="text-sm text-muted-foreground line-clamp-4 whitespace-pre-wrap">{item.content}</p>;
+            return <div className="text-sm text-muted-foreground line-clamp-4 prose prose-sm dark:prose-invert prose-p:my-0 prose-headings:my-0"><ReactMarkdown remarkPlugins={[remarkGfm]}>{(item as NoteItem).content}</ReactMarkdown></div>;
         case "link":
             return <p onClick={handleLinkClick} className="text-sm text-primary hover:underline truncate">{item.url}</p>;
         case "todo":

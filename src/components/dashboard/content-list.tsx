@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as LucideIcons from "lucide-react";
@@ -26,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { useContentStore } from "@/hooks/use-content-store";
 import { AddContentDialog } from "./add-content-dialog";
 import { MoreHorizontal, FolderSymlink, Copy, Edit, Trash2, Folder, FileText, Link, ImageIcon, ListTodo } from "lucide-react";
-import type { ContentItem } from "@/lib/types";
+import type { ContentItem, NoteItem } from "@/lib/types";
 
 const typeIcons: { [key: string]: React.ElementType } = {
   note: FileText,
@@ -57,7 +58,7 @@ export function ContentList() {
   const renderContentSummary = (item: ContentItem) => {
     switch(item.type) {
       case 'note':
-        return <p className="truncate max-w-xs">{item.content}</p>;
+        return <p className="truncate max-w-xs">{item.content.replace(/[#*`_~]/g, '')}</p>;
       case 'link':
       case 'image':
         return <p className="truncate max-w-xs">{item.url}</p>;
