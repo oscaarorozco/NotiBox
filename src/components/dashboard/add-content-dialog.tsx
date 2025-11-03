@@ -221,8 +221,8 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                                         placeholder="O pega la imagen aquí" 
                                         className="h-20" 
                                         onPaste={handlePaste} 
-                                        value={url}
                                         onChange={(e) => setUrl(e.target.value)}
+                                        value={url}
                                     />
                                 )}
                             </div>
@@ -343,5 +343,3 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     </Dialog>
   );
 }
-
-    
