@@ -81,7 +81,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                 break;
         }
       } else {
-        // Reset all states for a new item
         setSelectedType(null);
         setTitle('');
         setContent('');
@@ -221,8 +220,8 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
                                         placeholder="O pega la imagen aquí" 
                                         className="h-20" 
                                         onPaste={handlePaste} 
-                                        onChange={(e) => setUrl(e.target.value)}
                                         value={url}
+                                        onChange={(e) => setUrl(e.target.value)}
                                     />
                                 )}
                             </div>
