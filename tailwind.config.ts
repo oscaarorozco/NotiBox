@@ -87,16 +87,23 @@ export default {
           '100%': { transform: 'translateX(100%)' },
         },
         'glitch': {
-          '0%, 100%': { transform: 'translate(0, 0)', textShadow: 'none' },
-          '10%': { transform: 'translate(-1px, -1px)' },
-          '20%': { transform: 'translate(1px, 1px)', textShadow: '1px 1px 0 hsl(var(--primary) / 0.5), -1px -1px 0 hsl(var(--foreground) / 0.3)' },
-          '30%': { transform: 'translate(0, 0)' },
-          '40%': { transform: 'translate(1px, -1px)' },
-          '50%': { transform: 'translate(-1px, 1px)', textShadow: '-1px 1px 0 hsl(var(--primary) / 0.5), 1px -1px 0 hsl(var(--foreground) / 0.3)' },
-          '60%': { transform: 'translate(0, 0)' },
-          '70%': { transform: 'skewX(-5deg) scale(1.05)', textShadow: 'none' },
-          '80%': { transform: 'skewX(0) scale(1)' },
-          '90%': { textShadow: '2px 2px 5px hsl(var(--primary) / 0.2)' },
+          '2%, 64%': { transform: 'translate(2px, 0) skew(0deg)' },
+          '4%, 60%': { transform: 'translate(-2px, 0) skew(0deg)' },
+          '62%': { transform: 'translate(0, 0) skew(5deg)' },
+        },
+        'glitch-before': {
+           '0%, 15%, 45%, 100%': { clipPath: 'inset(0 0 0 0)' },
+           '20%': { clipPath: 'inset(30% 0 40% 0)'},
+           '25%': { clipPath: 'inset(10% 0 80% 0)'},
+           '35%': { clipPath: 'inset(50% 0 20% 0)'},
+           '40%': { clipPath: 'inset(70% 0 10% 0)'},
+        },
+         'glitch-after': {
+           '0%, 15%, 45%, 100%': { clipPath: 'inset(0 0 0 0)' },
+           '20%': { clipPath: 'inset(60% 0 10% 0)'},
+           '25%': { clipPath: 'inset(90% 0 5% 0)'},
+           '35%': { clipPath: 'inset(30% 0 60% 0)'},
+           '40%': { clipPath: 'inset(10% 0 75% 0)'},
         },
       },
       animation: {
@@ -104,7 +111,7 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'slide-up-and-fade': 'slide-up-and-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         'shimmer': 'shimmer 2s infinite',
-        'glitch': 'glitch 4s ease-in-out infinite',
+        'glitch': 'glitch 1.5s linear infinite',
       },
        typography: (theme: (arg0: string) => any) => ({
         DEFAULT: {
