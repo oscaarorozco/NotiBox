@@ -27,6 +27,7 @@ export interface NoteItem extends BaseContentItem {
 export interface LinkItem extends BaseContentItem {
   type: 'link';
   url: string;
+  faviconUrl?: string;
 }
 
 export interface ImageItem extends BaseContentItem {

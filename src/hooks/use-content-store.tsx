@@ -8,7 +8,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import type { AppData, Group, ContentItem, StatLog, TodoItem, ContentItemType, SortOrder, ViewMode } from "@/lib/types";
+import type { AppData, Group, ContentItem, StatLog, TodoItem, ContentItemType, SortOrder, ViewMode, LinkItem } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -85,6 +85,15 @@ const DeletionConfirmDialog: React.FC<DeletionConfirmDialogProps> = ({ open, onO
   </AlertDialog>
 );
 
+const getFaviconUrl = (url: string) => {
+    try {
+        const urlObject = new URL(url);
+        return `https://www.google.com/s2/favicons?domain=${urlObject.hostname}&sz=64`;
+    } catch (error) {
+        console.warn("Invalid URL for favicon:", url);
+        return undefined;
+    }
+};
 
 export const ContentStoreProvider = ({
   children,
@@ -250,18 +259,28 @@ export const ContentStoreProvider = ({
     if (newItem.type === 'todo') {
         (newItem as TodoItem).tasks = (newItem as TodoItem).tasks || [];
     }
+    
+    if (newItem.type === 'link') {
+      (newItem as LinkItem).faviconUrl = getFaviconUrl(newItem.url);
+    }
 
     setAppData((prev) => ({ ...prev, items: [...prev.items, newItem] }));
     toast({ title: "Elemento Agregado", description: `"${itemData.title}" ha sido agregado.` });
   }, [toast]);
   
   const updateItem = useCallback((updatedItem: ContentItem) => {
+     if (updatedItem.type === 'link') {
+        const oldItem = appData.items.find(i => i.id === updatedItem.id);
+        if (oldItem?.type === 'link' && oldItem.url !== updatedItem.url) {
+            (updatedItem as LinkItem).faviconUrl = getFaviconUrl(updatedItem.url);
+        }
+    }
     setAppData((prev) => ({
       ...prev,
       items: prev.items.map((i) => (i.id === updatedItem.id ? updatedItem : i)),
     }));
     toast({ title: "Elemento Actualizado", description: `"${updatedItem.title}" ha sido actualizado.` });
-  }, [toast]);
+  }, [toast, appData.items]);
   
   const confirmDeleteItem = useCallback(() => {
     if(!itemToDelete) return;

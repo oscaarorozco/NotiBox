@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { ContentItem, ImageItem } from "@/lib/types";
+import type { ContentItem, ImageItem, LinkItem } from "@/lib/types";
 import { useContentStore } from "@/hooks/use-content-store";
 import { AddContentDialog } from "./add-content-dialog";
 import { Progress } from "../ui/progress";
@@ -99,7 +99,7 @@ const ContentDetailViewer = ({ item, onOpen }: { item: ContentItem, onOpen: () =
     return (
         <Dialog>
             <DialogTrigger asChild onClick={(e) => { e.stopPropagation(); onOpen(); }}>
-                <div className="flex-1 cursor-pointer">
+                <div className="flex-1 cursor-pointer min-h-0">
                     {item.type === 'image' ? (
                         <div className="relative aspect-video w-full overflow-hidden rounded-md border border-border">
                             <Image src={item.url} alt={item.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
@@ -117,7 +117,7 @@ const ContentDetailViewer = ({ item, onOpen }: { item: ContentItem, onOpen: () =
             <DialogContent className="max-w-3xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-3 text-xl">
-                        <CardIconComponent iconName={item.icon || ''} className="h-6 w-6 text-primary flex-shrink-0" />
+                        <CardIconComponent item={item} className="h-6 w-6 text-primary flex-shrink-0" />
                         {item.title}
                     </DialogTitle>
                     <DialogDescription>{typeName}</DialogDescription>
@@ -139,8 +139,11 @@ const ContentDetailViewer = ({ item, onOpen }: { item: ContentItem, onOpen: () =
     )
 }
 
-const CardIconComponent = ({ iconName, className }: { iconName: string, className?: string }) => {
-  const Icon = LucideIcons[toPascalCase(iconName) as keyof typeof LucideIcons] || Folder;
+const CardIconComponent = ({ item, className }: { item: ContentItem, className?: string }) => {
+    if (item.type === 'link' && item.faviconUrl) {
+        return <Image src={item.faviconUrl} alt="favicon" width={20} height={20} className={cn("h-5 w-5", className)} />;
+    }
+  const Icon = LucideIcons[toPascalCase(item.icon || '') as keyof typeof LucideIcons] || Folder;
   return <Icon className={cn("h-5 w-5 text-primary flex-shrink-0", className)} />;
 };
 
@@ -227,7 +230,7 @@ export function ContentCard({ item }: ContentItemProps) {
             <CardHeader className="p-4 space-y-2">
                 <div className="flex items-start justify-between">
                     <CardTitle className="text-base font-headline tracking-tight flex items-center gap-2 pr-4">
-                        <CardIconComponent iconName={item.icon || ''} />
+                        <CardIconComponent item={item} />
                         <span className="flex-1 truncate">{item.title}</span>
                     </CardTitle>
                     <DropdownMenu>

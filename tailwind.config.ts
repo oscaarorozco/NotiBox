@@ -86,12 +86,23 @@ export default {
         'shimmer': {
           '100%': { transform: 'translateX(100%)' },
         },
+         'pulse-and-rotate': {
+          '0%, 100%': {
+            transform: 'scale(1) rotate(0deg)',
+            boxShadow: '0 0 0 0 hsl(var(--primary) / 0.7)',
+          },
+          '50%': {
+            transform: 'scale(1.1) rotate(5deg)',
+            boxShadow: '0 0 0 10px hsl(var(--primary) / 0)',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'slide-up-and-fade': 'slide-up-and-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         'shimmer': 'shimmer 2s infinite',
+        'pulse-and-rotate': 'pulse-and-rotate 2.5s ease-in-out infinite',
       },
        typography: (theme: (arg0: string) => any) => ({
         DEFAULT: {

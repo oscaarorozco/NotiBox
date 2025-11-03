@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Book, LayoutDashboard, LineChart, Settings, PlusCircle } from "lucide-react";
+import { Box, LayoutDashboard, LineChart, Settings, PlusCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
   SidebarContent,
@@ -32,7 +32,7 @@ export function DashboardSidebarContent() {
                 href="/dashboard"
                 className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground"
             >
-                <Book className="h-5 w-5 transition-all group-hover:scale-110" />
+                <Box className="h-5 w-5 transition-all group-hover:scale-110 animate-pulse-and-rotate" />
                 <span className="sr-only">NotiBox</span>
             </Link>
         </SidebarHeader>
