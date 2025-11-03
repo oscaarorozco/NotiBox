@@ -10,7 +10,7 @@ const inter = Inter({
 });
 const bebasNeue = Bebas_Neue({ 
   subsets: ["latin"], 
-  variable: "--font-headline",
+  variable: "--font-logo",
   weight: "400",
   display: 'swap',
 });

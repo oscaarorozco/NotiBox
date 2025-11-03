@@ -19,7 +19,7 @@ export function DashboardHeader() {
                 href="/dashboard"
                 className="flex items-center gap-2 font-semibold"
             >
-                 <div className="text-lg font-headline font-bold text-transparent bg-clip-text animate-aurora-glitch w-full">NotiBox</div>
+                 <div className="text-lg font-logo font-bold text-transparent bg-clip-text animate-aurora-glitch w-full">NotiBox</div>
             </Link>
 
             <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
