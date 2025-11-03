@@ -18,6 +18,7 @@ const bebasNeue = Bebas_Neue({
 export const metadata: Metadata = {
   title: "NotiBox",
   description: "Tu espacio para almacenar ideas y notas en una nebulosa personal.",
+  icons: [{ rel: 'icon', url: '/favicon.svg' }],
 };
 
 export default function RootLayout({
