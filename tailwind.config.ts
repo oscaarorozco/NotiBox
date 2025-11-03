@@ -86,13 +86,17 @@ export default {
         'shimmer': {
           '100%': { transform: 'translateX(100%)' },
         },
-        'pulse-and-rotate': {
-          '0%, 100%': {
-            transform: 'scale(1) rotate(0deg)',
-          },
-          '50%': {
-            transform: 'scale(1.05) rotate(-3deg)',
-          },
+        'glitch': {
+          '0%, 100%': { transform: 'translate(0, 0)', textShadow: 'none' },
+          '10%': { transform: 'translate(-1px, -1px)' },
+          '20%': { transform: 'translate(1px, 1px)', textShadow: '1px 1px 0 hsl(var(--primary) / 0.5), -1px -1px 0 hsl(var(--foreground) / 0.3)' },
+          '30%': { transform: 'translate(0, 0)' },
+          '40%': { transform: 'translate(1px, -1px)' },
+          '50%': { transform: 'translate(-1px, 1px)', textShadow: '-1px 1px 0 hsl(var(--primary) / 0.5), 1px -1px 0 hsl(var(--foreground) / 0.3)' },
+          '60%': { transform: 'translate(0, 0)' },
+          '70%': { transform: 'skewX(-5deg) scale(1.05)', textShadow: 'none' },
+          '80%': { transform: 'skewX(0) scale(1)' },
+          '90%': { textShadow: '2px 2px 5px hsl(var(--primary) / 0.2)' },
         },
       },
       animation: {
@@ -100,7 +104,7 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'slide-up-and-fade': 'slide-up-and-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         'shimmer': 'shimmer 2s infinite',
-        'pulse-and-rotate': 'pulse-and-rotate 3s ease-in-out infinite',
+        'glitch': 'glitch 4s ease-in-out infinite',
       },
        typography: (theme: (arg0: string) => any) => ({
         DEFAULT: {

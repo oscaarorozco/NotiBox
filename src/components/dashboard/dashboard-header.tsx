@@ -1,7 +1,7 @@
 "use client";
 
 import { useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
-import { BookOpenText, PanelLeft } from "lucide-react";
+import { PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { useContentStore } from "@/hooks/use-content-store";
 
@@ -19,8 +19,7 @@ export function DashboardHeader() {
                 href="/dashboard"
                 className="flex items-center gap-2 font-semibold"
             >
-                <BookOpenText className="h-6 w-6 text-primary animate-pulse-and-rotate" />
-                <span className="sr-only">NotiBox</span>
+                 <div className="text-lg font-headline font-bold text-primary animate-glitch w-full">NotiBox</div>
             </Link>
 
             <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
