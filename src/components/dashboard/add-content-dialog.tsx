@@ -25,11 +25,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useContentStore } from "@/hooks/use-content-store";
 import type { ContentItem, ContentItemType, CardAspect, TodoItem } from "@/lib/types";
 import { readFileAsDataURL, cn } from "@/lib/utils";
-import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette } from "lucide-react";
+import { FileText, Link, ImageIcon, ListTodo, Plus, Trash2, Settings2, Palette, Sparkles, Wand } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MarkdownEditor } from "./markdown-editor";
-import { useToast } from "@/hooks/use-toast";
 
 type AddContentDialogProps = {
     trigger: ReactNode;
@@ -55,7 +54,6 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
   const [imageUrl, setImageUrl] = useState("");
   const [noteContent, setNoteContent] = useState("");
   
-  const { toast } = useToast();
   const titleInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -141,7 +139,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
     const formData = new FormData(formRef.current);
     
     const title = formData.get('title') as string;
-    const tags = (formData.get('tags') as string).split(",").map((t) => t.trim()).filter(Boolean);
+    const tags = ((formData.get('tags') as string) || '').split(",").map((t) => t.trim()).filter(Boolean);
     const icon = formData.get('icon') as string;
 
     const targetGroupId = isEditing ? itemToEdit!.groupId : (activeGroupId || defaultGroupId);
@@ -208,7 +206,7 @@ export function AddContentDialog({ trigger, itemToEdit, defaultGroupId }: AddCon
 
                     {selectedType === "note" && (
                         <FormFieldWrapper label="Contenido" htmlFor="content" fullWidth>
-                            <MarkdownEditor
+                           <MarkdownEditor
                                 value={noteContent}
                                 onChange={setNoteContent}
                             />
